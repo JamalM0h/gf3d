@@ -20,6 +20,9 @@
 #include "gf3d_pipeline.h"
 #include "gf3d_swapchain.h"
 
+#include "gf3d_camera.h"
+#include "gf3d_mesh.h"
+
 extern int __DEBUG;
 
 static int _done = 0;
@@ -34,11 +37,12 @@ void exitGame()
     _done = 1;
 }
 
-
 int main(int argc,char *argv[])
 {
     //local variables
-    Sprite *bg;
+    Mesh *mesh; 
+    GFC_Vector3D cam = { 0,50,0 };
+    GFC_Matrix4 id;
     //initializtion    
     parse_arguments(argc,argv);
     init_logger("gf3d.log",0);
@@ -55,8 +59,11 @@ int main(int argc,char *argv[])
     //game init
     srand(SDL_GetTicks());
     slog_sync();
-    bg = gf2d_sprite_load_image("images/bg_flat.png");
-    gf2d_mouse_load("actors/mouse.actor");
+
+    mesh = gf3d_mesh_load("models/dino/dino.obj"); 
+    gfc_matrix4_identity(id); 
+    
+    gf3d_camera_look_at(gfc_vector3d(0, 0, 0), &cam); 
     // main game loop    
     while(!_done)
     {
@@ -64,11 +71,10 @@ int main(int argc,char *argv[])
         gf2d_mouse_update();
         gf2d_font_update();
         //camera updaes
+        gf3d_camera_update_view();
         gf3d_vgraphics_render_start();
-                //2D draws
-                gf2d_sprite_draw_image(bg,gfc_vector2d(0,0));
-                gf2d_font_draw_line_tag("ALT+F4 to exit",FT_H1,GFC_COLOR_WHITE, gfc_vector2d(10,10));
-                gf2d_mouse_draw();
+            //3d draws
+            gf3d_mesh_draw(mesh, id, GFC_COLOR_WHITE, NULL); 
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();
