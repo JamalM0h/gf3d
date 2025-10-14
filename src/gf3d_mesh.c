@@ -201,6 +201,7 @@ Mesh* gf3d_mesh_load(const char *filename)
 	primitive->objData = obj; 
 	gf3d_mesh_create_vertex_buffer_from_vertices(primitive);
 	gf3d_mesh_setup_face_buffers(primitive);
+	gfc_line_cpy(mesh->filename, filename);
 	slog("Done Loading Mesh");
 	return mesh;
 }
@@ -363,7 +364,7 @@ Pipeline* gf3d_mesh_get_pipeline()
 	return mesh_manager.pipe;
 }
 
-void gf3d_mesh_draw(Mesh *mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture)
+void gf3d_mesh_draw(Mesh *mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture, GFC_Vector3D lightPos, GFC_Color lightColor)
 {
 	MeshUBO ubo = { 0 };
 
