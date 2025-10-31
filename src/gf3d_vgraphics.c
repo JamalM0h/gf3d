@@ -202,9 +202,9 @@ void gf3d_vgraphics_init(const char* config)
     gf3d_vgraphics.enable_2d = 1;  
     gf3d_mesh_init(1024); 
     gf2d_sprite_manager_init(1024);  
+    
     renderPipe = gf3d_mesh_get_pipeline(); 
    
-
     gf3d_swapchain_create_depth_image();
     gf3d_swapchain_setup_frame_buffers(renderPipe);
     gf3d_vgraphics_semaphores_create();
@@ -342,7 +342,6 @@ void gf3d_vgraphics_setup(
     }
 
     gf3d_device_manager_init(config, gf3d_vgraphics.vk_instance, gf3d_vgraphics.surface);
-
 
     gf3d_vgraphics.gpu = gf3d_devices_get_best_device();
     if (!gf3d_vgraphics.gpu) {

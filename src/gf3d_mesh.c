@@ -22,6 +22,7 @@ typedef struct
 	Uint32							     chain_length;
 	VkDevice					         device;
 	Pipeline						     *pipe;
+	Pipeline                             *sky_pipe;
 	VkVertexInputAttributeDescription    attributeDescriptions[MESH_ATTRIBUTE_COUNT];
 	VkVertexInputBindingDescription		 bindingDescription;
 	Texture                              *defaultTexture;
@@ -67,7 +68,6 @@ void gf3d_mesh_init(Uint32 mesh_max)
 	mesh_manager.mesh_count = mesh_max;
 	mesh_manager.device = gf3d_vgraphics_get_default_logical_device();
 
-
 	gf3d_mesh_get_attribute_descriptions(&count);
 
 	mesh_manager.pipe = gf3d_pipeline_create_from_config( 
@@ -81,6 +81,18 @@ void gf3d_mesh_init(Uint32 mesh_max)
 		sizeof(MeshUBO), 
 		VK_INDEX_TYPE_UINT16
 	);
+
+	//mesh_manager.sky_pipe = gf3d_pipeline_create_from_config(
+	//	gf3d_vgraphics_get_default_logical_device(),
+	//	"config/sky_pipeline.cfg",
+	//	gf3d_vgraphics_get_view_extent(),
+	//	mesh_max,
+	//	gf3d_mesh_get_bind_description(),
+	//	gf3d_mesh_get_attribute_descriptions(NULL),
+	//	count,
+	//	sizeof(SkyUBO),
+	//	VK_INDEX_TYPE_UINT16 
+	//);
 
 	mesh_manager.defaultTexture = gf3d_texture_load("images/default.png");
 
@@ -364,6 +376,11 @@ Pipeline* gf3d_mesh_get_pipeline()
 	return mesh_manager.pipe;
 }
 
+Pipeline* gf3d_mesh_get_sky_pipeline()
+{
+	return mesh_manager.sky_pipe;
+}
+
 void gf3d_mesh_draw(Mesh *mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture, GFC_Vector3D lightPos, GFC_Color lightColor)
 {
 	MeshUBO ubo = { 0 };
@@ -374,7 +391,24 @@ void gf3d_mesh_draw(Mesh *mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture
 	gf3d_vgraphics_get_projection_matrix(&ubo.proj);
 
 	ubo.color = gfc_color_to_vector4f(mod);
+	ubo.lightColor = gfc_color_to_vector4(lightColor);
+	ubo.lightPos = gfc_vector3dw(lightPos, 1.0);
 	ubo.camera = gfc_vector3dw(gf3d_camera_get_position(), 1.0);  
 
 	gf3d_mesh_queue_render(mesh, mesh_manager.pipe, &ubo, texture); 
+}
+
+void gf3d_sky_draw(Mesh* mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture)
+{
+	MeshUBO ubo = { 0 };
+
+	if (!mesh)return;
+	gfc_matrix4_copy(ubo.model, mat);
+	gf3d_vgraphics_get_view(&ubo.view);
+	gf3d_vgraphics_get_projection_matrix(&ubo.proj);
+
+	ubo.color = gfc_color_to_vector4f(mod);
+	ubo.camera = gfc_vector3dw(gf3d_camera_get_position(), 1.0);
+
+	gf3d_mesh_queue_render(mesh, mesh_manager.sky_pipe, &ubo, texture);
 }

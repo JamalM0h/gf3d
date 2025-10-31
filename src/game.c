@@ -46,9 +46,10 @@ int main(int argc,char *argv[])
     Mesh *mesh;
     Texture *texture;
     float theta = 0;
-    GFC_Vector3D lightPos = {0,0,0};
-    GFC_Vector3D cam = { 0,35,0 };
+    GFC_Vector3D lightPos = {0,0,-100};
+    GFC_Vector3D *cam = gfc_vector3d_new();
     GFC_Matrix4 id, dinoM;
+    Entity* player;
     //initializtion    
     parse_arguments(argc,argv);
     init_logger("gf3d.log",0);
@@ -67,15 +68,17 @@ int main(int argc,char *argv[])
     //game init
     srand(SDL_GetTicks());
     slog_sync();
+    monster_spawn(gfc_vector3d(0,0,-8), GFC_COLOR_WHITE);
+    player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
+    player->camera = cam;
+    //*cam = gfc_vector3d(0, 35, 0);
 
-    monster_spawn(gfc_vector3d(-8,0,0), GFC_COLOR_WHITE);
-    player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     //mesh = gf3d_mesh_load("models/dino/dino.obj"); 
     //texture = gf3d_texture_load("models/dino/dino.png");
     gfc_matrix4_identity(id); 
     
-    gf3d_camera_look_at(gfc_vector3d(0, 0, 0), &cam); 
     // main game loop    
     while(!_done)
     {
@@ -85,13 +88,11 @@ int main(int argc,char *argv[])
         entity_think_all(); 
         entity_update_all();
         theta += 0.1;
-        gfc_matrix4_rotate_z(dinoM, id, theta);
         //camera updaes
         gf3d_camera_update_view();
         gf3d_vgraphics_render_start();
             //3d draws
-            //gf3d_mesh_draw(mesh, dinoM, GFC_COLOR_WHITE, texture, lightPos, GFC_COLOR_WHITE);
-            entity_draw_all(lightPos, GFC_COLOR_WHITE); 
+            entity_draw_all(lightPos, GFC_COLOR_WHITE);  
             gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));  
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition

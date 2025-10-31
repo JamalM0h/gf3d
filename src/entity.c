@@ -63,6 +63,24 @@ void entity_system_init(Uint32 max_ents)
 	atexit(entity_system_close); 
 }
 
+void entity_draw_shadow(Entity* ent)
+{
+	GFC_Matrix4 modelMat;
+	if (!ent)return;
+	gfc_matrix4_from_vectors(
+		modelMat,
+		ent->position,
+		ent->rotation,
+		gfc_vector3d(ent->scale.x,ent->scale.y, 0.01));
+	gf3d_mesh_draw(
+		ent->mesh,
+		modelMat,
+		gfc_color8(0,0,0,120), 
+		ent->texture, 
+		gfc_vector3d(0,0,0),
+		gfc_color8(0,0,0,0));
+}
+
 void entity_draw(Entity* ent, GFC_Vector3D lightPos, GFC_Color lightColor)
 {
 	GFC_Matrix4 modelMat;
