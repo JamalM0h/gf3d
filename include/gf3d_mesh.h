@@ -22,6 +22,7 @@ typedef struct
     GFC_Matrix4     view;
     GFC_Matrix4     proj;
     GFC_Vector4D    color;
+    GFC_Vector4D    camera; 
 }SkyUBO;
 
 //absolute basics of the mesh information sent to the graphics card
@@ -94,6 +95,7 @@ Mesh *gf3d_mesh_new();
 Mesh *gf3d_mesh_load(const char *filename);
 
 void gf3d_mesh_draw(Mesh *mesh, GFC_Matrix4 modelMat, GFC_Color mod, Texture* texture, GFC_Vector3D lightPos, GFC_Color lightColor);
+void gf3d_sky_draw(Mesh* mesh, GFC_Matrix4 mat, GFC_Color mod, Texture* texture);
 /**
  * @brief allocate a zero initialized mesh primitive
  * @return NULL on error or the primitive
@@ -132,6 +134,8 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(MeshPrimitive *primitive);
  * @return NULL on error or the pipeline in question
  */
 Pipeline *gf3d_mesh_get_pipeline();
+
+Pipeline* gf3d_mesh_get_sky_pipeline();
 
 /**
  * @brief given a model matrix and basic color, build the meshUBO needed to render a model

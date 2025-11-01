@@ -3,9 +3,12 @@
 #include "player.h"
 #include "gfc_input.h"
 #include "gf3d_camera.h"
+#include "projectile.h"
+#include "monster.h"
 
 void player_think(Entity* self);
 void player_update(Entity* self);
+void player_collide(Entity* self, Entity* collide);
 
 GFC_Vector3D dir = { 0 }, velocity = { 0 }, up = { 0 }, angle = { 0 };
 int jump = 0, class = 0;
@@ -16,15 +19,20 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	Entity* self;
 	self = entity_new();
 	if (!self)return;
-	gfc_line_cpy(self->name, "notAgumon");
-	self->mesh = gf3d_mesh_load("models/dino/dino.obj");
-	self->texture = gf3d_texture_load("models/dino/dino.png");
+	gfc_line_cpy(self->name, "player");
+	self->obj = "player";
+	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->texture = gf3d_texture_load("models/primitives/flatwhite.png");
 	self->color = color;
 	self->position = position;
 	self->position.z = 0;
 	self->rotation = gfc_vector3d(0, 0, 0);
+	self->scale = gfc_vector3d(3, 3, 3);
 	self->think = player_think;
 	self->update = player_update;
+	self->collide = player_collide;
+	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 5, 5, 5); 
+	self->bounds = hitbox; 
 	return self;
 }
 
@@ -90,11 +98,16 @@ void player_think(Entity* self)
 		dir.x = dir.x / 2.0;
 	}
 
+	if (gfc_input_command_pressed("yes"))
+	{
+		create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, 0), GFC_COLOR_WHITE);
+	}
+
 	if (gfc_input_command_down("movementab") && gfc_input_command_held("movementab"))
 	{
 		if (class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
 		{
-			dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.3, 1.3, 0));
+			dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.5, 1.5, 0));
 		}
 		else if (class == 1 && jump == 1 && gfc_input_command_down("movementab"))
 		{
@@ -186,4 +199,14 @@ void player_update(Entity* self)
 	self->camera->y = newvec.y;
 
 	gf3d_camera_look_at(gfc_vector3d(self->position.x, self->position.y, self->position.z + 5), self->camera); 
+
+	self->bounds.x = self->position.x;
+	self->bounds.y = self->position.y;
+	self->bounds.z = self->position.z;
+}
+
+void player_collide(Entity* self, Entity* collide)
+{
+	if (!self)return;
+	slog("player collided with %s", collide->obj); 
 }

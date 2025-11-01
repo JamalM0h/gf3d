@@ -24,6 +24,8 @@
 #include "gf3d_mesh.h"
 #include "entity.h"
 #include "monster.h"
+#include "world.h"
+#include "projectile.h"
 #include "player.h"
 
 extern int __DEBUG;
@@ -68,16 +70,23 @@ int main(int argc,char *argv[])
     //game init
     srand(SDL_GetTicks());
     slog_sync();
-    monster_spawn(gfc_vector3d(0,0,-8), GFC_COLOR_WHITE);
+    monster_spawn(gfc_vector3d(0,0,0), GFC_COLOR_WHITE); 
+    world_spawn(gfc_vector3d(0, 0, -7), GFC_COLOR_WHITE);
     player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
     player->camera = cam;
     //*cam = gfc_vector3d(0, 35, 0);
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    //mesh = gf3d_mesh_load("models/dino/dino.obj"); 
+    //mesh = gf3d_mesh_load("models/dino/dino.obj");  
     //texture = gf3d_texture_load("models/dino/dino.png");
-    gfc_matrix4_identity(id); 
+    mesh = gf3d_mesh_load("models/sky/sky.obj");
+    texture = gf3d_texture_load("models/sky/sky.png");
+    gfc_matrix4_from_vectors(
+        id,
+        gfc_vector3d(0,0,0),
+        gfc_vector3d(0, 0, 0), 
+        gfc_vector3d(20, 20, 20));
     
     // main game loop    
     while(!_done)
@@ -87,11 +96,13 @@ int main(int argc,char *argv[])
         gf2d_font_update();
         entity_think_all(); 
         entity_update_all();
+        entity_system_collision(); 
         theta += 0.1;
         //camera updaes
         gf3d_camera_update_view();
         gf3d_vgraphics_render_start();
             //3d draws
+            gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture);   
             entity_draw_all(lightPos, GFC_COLOR_WHITE);  
             gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));  
         gf3d_vgraphics_render_end();

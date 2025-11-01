@@ -14,6 +14,7 @@ typedef struct Entity_S
 { 
 	Uint32          _inuse;
 	GFC_TextLine	name;
+	char            *obj; 
 	Mesh			*mesh;
 	Texture			*texture;
 	GFC_Color       color;
@@ -21,12 +22,16 @@ typedef struct Entity_S
 	GFC_Vector3D    position;
 	GFC_Vector3D    rotation;
 	GFC_Vector3D    scale;
-	GFC_Vector3D    collision;
 	GFC_Box         bounds;
+	GFC_Vector3D    dirtomove;
+	int				ttl;
+	Bool			temp;
 	GFC_Vector3D    *camera;
 	void			(*draw)(struct Entity_S *self);
 	void			(*think)(struct Entity_S *self);
 	void			(*update)(struct Entity_S *self);
+	void            (*free)(struct Entity_S* self);
+	void            (*collide)(struct Entity_S *self, struct Entity_S *collider);
 
 }Entity; 
 
@@ -39,6 +44,8 @@ void entity_system_init(Uint32 max_ents);
 void entity_draw(Entity* ent, GFC_Vector3D lightPos, GFC_Color lightColor);
 
 void entity_draw_all(GFC_Vector3D lightPos, GFC_Color lightColor);
+
+void entity_system_collision(); 
 
 void entity_think_all();
 
