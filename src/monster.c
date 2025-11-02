@@ -15,7 +15,7 @@ Entity* monster_spawn(GFC_Vector3D position, GFC_Color color)
 	gfc_line_cpy(self->name, "monster");
 	self->obj = "monster";
 	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
-	self->texture = gf3d_texture_load("models/primitives/flatwhite.png"); 
+	self->texture = gf3d_texture_load("models/primitives/flatred.png"); 
 	self->color = color;
 	self->position = position;
 	self->rotation = gfc_vector3d(0, 0, 0);
@@ -26,7 +26,7 @@ Entity* monster_spawn(GFC_Vector3D position, GFC_Color color)
 	self->collide = monster_collide;
 	self->_inuse = 1;
 
-	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 5, 5, 5); 
+	GFC_Box hitbox = gfc_box(self->position.x - 1.5, self->position.y - 1.5, self->position.z - 1.5, 4, 4, 4); 
 
 	self->bounds = hitbox;
 
@@ -41,9 +41,9 @@ void monster_update(Entity* self)
 {
 	if (!self)return; 
 
-	self->bounds.x = self->position.x;
-	self->bounds.y = self->position.y;
-	self->bounds.z = self->position.z;
+	self->bounds.x = self->position.x - 1.5;
+	self->bounds.y = self->position.y - 1.5;
+	self->bounds.z = self->position.z - 1.5;
 }
 
 void monster_free(Entity* self)

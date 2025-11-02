@@ -158,8 +158,10 @@ void entity_collision(Entity* self)
 		if (entity_system.entity_list[i].obj == "world")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue;
 		if (entity_system.entity_list[i].obj == "projectile")continue;
-		if (self->obj == "projectile" && entity_system.entity_list[i].obj == "player")continue;
+		if (self->obj == "projectile" && entity_system.entity_list[i].obj != "monster")continue;
+		if (self->obj == "turret" && entity_system.entity_list[i].obj != "monster")continue;
 		if (self->obj == "monster" && entity_system.entity_list[i].obj == "projectile")continue;
+		if (self->obj == "monster" && entity_system.entity_list[i].obj == "tele")continue;
 		//slog("%s checking against %s", self->obj, entity_system.entity_list[i].obj); 
 		if (gfc_box_overlap(self->bounds, entity_system.entity_list[i].bounds)) 
 		{

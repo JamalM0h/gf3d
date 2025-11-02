@@ -4,15 +4,18 @@
 #include "gfc_input.h"
 #include "gf3d_camera.h"
 #include "projectile.h"
-#include "monster.h"
+#include "tele.h"
+#include "turret.h"
 
 void player_think(Entity* self);
 void player_update(Entity* self);
 void player_collide(Entity* self, Entity* collide);
 
 GFC_Vector3D dir = { 0 }, velocity = { 0 }, up = { 0 }, angle = { 0 };
-int jump = 0, class = 0;
+int jump = 0, class = 0, isMech = 0;
 float theta = 0, zax = 5, yax = 40;
+float dashMod = 1, leaping = 0, jetFuel = 100, speedMod = 1;
+Entity* teleent = NULL, * teleext = NULL;  
 
 Entity* player_init(GFC_Vector3D position, GFC_Color color)
 {
@@ -22,17 +25,21 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	gfc_line_cpy(self->name, "player");
 	self->obj = "player";
 	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
-	self->texture = gf3d_texture_load("models/primitives/flatwhite.png");
+	self->texture = gf3d_texture_load("models/primitives/flatblue.png");
 	self->color = color;
 	self->position = position;
 	self->position.z = 0;
 	self->rotation = gfc_vector3d(0, 0, 0);
-	self->scale = gfc_vector3d(3, 3, 3);
+	self->scale = gfc_vector3d(1.5, 1.5, 3);
 	self->think = player_think;
 	self->update = player_update;
 	self->collide = player_collide;
-	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 5, 5, 5); 
+	GFC_Box hitbox = gfc_box(self->position.x - 0.75, self->position.y - 0.75, self->position.z - 1.5, 5, 5, 5); 
 	self->bounds = hitbox; 
+	self->attSpeed = 1;
+	self->attMod = 1;
+	self->MoveCD = 1.0;
+	self->SpecCD = 1.0;
 	return self;
 }
 
@@ -98,29 +105,137 @@ void player_think(Entity* self)
 		dir.x = dir.x / 2.0;
 	}
 
-	if (gfc_input_command_pressed("yes"))
+	if (self->attSpeed < 1)
 	{
-		create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, 0), GFC_COLOR_WHITE);
+		self->attSpeed += (0.1 * self->attMod);
 	}
 
-	if (gfc_input_command_down("movementab") && gfc_input_command_held("movementab"))
+	else if ((gfc_input_command_held("yes")) && (self->attSpeed >= 1))
 	{
-		if (class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
+		self->attSpeed = 0;
+		if (class == 0 || (class == 3 && isMech == 0))
 		{
-			dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.5, 1.5, 0));
+			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.15), GFC_COLOR_WHITE);
 		}
-		else if (class == 1 && jump == 1 && gfc_input_command_down("movementab"))
+		else if (class == 3 && isMech > 0)
 		{
-			dir.x *= 15;
-			dir.y *= 15;
-			up.z = 3.5;
-			jump = 0;
+			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.15), GFC_COLOR_WHITE);
+			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.15), GFC_COLOR_WHITE); 
+			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.15), GFC_COLOR_WHITE);
+		}
+		else if (class == 4)
+		{
+			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.15), GFC_COLOR_WHITE);
+			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.15), GFC_COLOR_WHITE);
+			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.15), GFC_COLOR_WHITE);
+			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.2), camforward->y + (camright->y * 0.2), (5 - zax) * 0.15), GFC_COLOR_WHITE);
+			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.2), camforward->y - (camright->y * 0.2), (5 - zax) * 0.15), GFC_COLOR_WHITE);
+
 		}
 	}
 
-	gfc_vector3d_scale(velocity, dir, 0.5);
+	if (gfc_input_command_pressed("no")) 
+	{
+		if (class <= 3)class += 1;
+		else class = 0;
+		slog("class: %i", class);
+		if (class == 0)self->attMod = 1.0f;
+		else if (class == 1)self->attMod = 1.0f;
+		else if (class == 2)self->attMod = 1.0f;
+		else if (class == 3)self->attMod = 1.0f;
+		else if (class == 4)self->attMod = 0.2f;
+	}
+
+	if(self->MoveCD < 1.0)self->MoveCD += 0.01;
+	if(self->SpecCD < 1.0)self->SpecCD += 0.01;
+
+	if (class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
+	{
+		dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.3, 1.3, 0));
+	}
+	if (class == 1 && gfc_input_command_pressed("movementab") && jump == 1 && self->MoveCD >= 1.0)      
+	{
+		up.z = 3.5;
+		//dir.x += camforward->x * 50;
+		//dir.y += camforward->y * 50;
+		jump = 0;
+		leaping = 40;
+		self->MoveCD = 0;
+	}
+	else if (class == 1 && leaping > 0)
+	{
+		dir.x += camforward->x * 3; 
+		dir.y += camforward->y * 3; 
+		leaping -= 1; 
+	}
+	if (class == 2 && (gfc_input_command_held("movementab")) && self->MoveCD >= 1.0)
+	{
+		if(dashMod < 100)dashMod += 2;
+		dir.x *= 0.20;
+		dir.y *= 0.20;
+	}
+	else if (class == 2 && (gfc_input_command_released("movementab")) && self->MoveCD >= 1.0)
+	{
+		dir.x += camforward->x * dashMod;
+		dir.y += camforward->y * dashMod; 
+		dashMod = 1;
+		self->MoveCD = 0;
+	}
+	if (class == 3 && (gfc_input_command_held("movementab")) && jetFuel > 0)
+	{
+		if (up.z < 1 && isMech == 0)up.z += 0.25;
+		else if (isMech > 0) up.z = 0;
+		if(isMech == 0)jetFuel -= 1;
+	}
+	else if (class == 3 && self->position.z <= 0 && jetFuel < 100)
+	{
+		jetFuel += 2;
+	}
+	if (class == 4 && (gfc_input_command_pressed("movementab")))
+	{
+		if (teleent == NULL)teleent = tele_spawn(self->position, GFC_COLOR_WHITE); 
+		else if (teleext == NULL) teleext = tele_spawn(self->position, GFC_COLOR_WHITE); 
+		else
+		{
+			teleent->free(teleent);
+			teleent = NULL; 
+			teleent = teleext;
+			teleext = tele_spawn(self->position, GFC_COLOR_WHITE); 
+		}
+		self->MoveCD = 0;
+	}
+
+	if (class == 3 && gfc_input_command_held("specialab") && isMech <= 0 && self->SpecCD >= 1.0)
+	{
+		isMech = 500;
+	}
+	if (class == 3 && isMech == 500)
+	{
+		self->mesh = gf3d_mesh_load("models/primitives/cube.obj");
+		self->scale = gfc_vector3d(3, 3, 2.5);
+		speedMod = 0.50;
+		self->attMod += 0.2;
+		isMech = 500;
+	}
+	else if (class == 3 && isMech == 1)
+	{
+		self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+		self->scale = gfc_vector3d(1.5, 1.5, 3);
+		self->attMod -= 0.2;
+		speedMod = 1;
+		isMech = 0;
+		self->SpecCD = 0;
+		jetFuel = 0;
+	}
+	if (class == 4 && (gfc_input_command_pressed("specialab")) && self->SpecCD >= 1.0)
+	{
+		turret_spawn(gfc_vector3d(self->position.x, self->position.y, 0), GFC_COLOR_WHITE);
+		self->SpecCD = 0;
+	}
+
+	gfc_vector3d_scale(velocity, gfc_vector3d(dir.x * speedMod, dir.y * speedMod, 0), 0.5);
  
-	SDL_GetRelativeMouseState(&MouseRelX, &MouseRelY);
+	SDL_GetRelativeMouseState(&MouseRelX, &MouseRelY);  
 
 	//if (gfc_input_command_held("pandown"))
 	if (MouseRelY > 0)
@@ -203,10 +318,23 @@ void player_update(Entity* self)
 	self->bounds.x = self->position.x;
 	self->bounds.y = self->position.y;
 	self->bounds.z = self->position.z;
+
+	if (isMech > 0)
+	{
+		isMech -= 1;
+	}
 }
 
 void player_collide(Entity* self, Entity* collide)
 {
 	if (!self)return;
-	slog("player collided with %s", collide->obj); 
+	if (collide->obj == "tele" && teleext != NULL) 
+	{
+		if (gfc_vector3d_distance_between_less_than(self->position, teleent->position, 6.0))
+		{
+			self->position.x = teleext->position.x;
+			self->position.y = teleext->position.y;
+			//slog("turret collided with %s", collide->obj); 
+		}
+	}
 }
