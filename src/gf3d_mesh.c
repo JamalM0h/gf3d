@@ -390,7 +390,7 @@ void gf3d_mesh_draw(Mesh *mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture
 	gf3d_vgraphics_get_view(&ubo.view);
 	gf3d_vgraphics_get_projection_matrix(&ubo.proj);
 
-	ubo.color = gfc_color_to_vector4f(GFC_COLOR_RED);
+	ubo.color = gfc_color_to_vector4f(mod);
 	ubo.lightColor = gfc_color_to_vector4(lightColor);
 	ubo.lightPos = gfc_vector3dw(lightPos, 1.0);
 	ubo.camera = gfc_vector3dw(gf3d_camera_get_position(), 1.0);  
@@ -408,7 +408,7 @@ void gf3d_sky_draw(Mesh* mesh, GFC_Matrix4 mat, GFC_Color mod, Texture *texture)
 	gf3d_vgraphics_get_projection_matrix(&ubo.proj); 
 
 	ubo.color = gfc_color_to_vector4f(mod);
-	ubo.camera = gfc_vector3dw(gf3d_camera_get_position(), 1.0);
+	ubo.camera = gfc_vector3dw(gf3d_camera_get_position(), 1.0); 
 
 	gf3d_mesh_queue_render(mesh, mesh_manager.sky_pipe, &ubo, texture);  
 }

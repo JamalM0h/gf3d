@@ -1,6 +1,6 @@
 #include "simple_logger.h"
 
-#include "tele.h"
+#include "deploy.h"
 
 void tele_think(Entity* self);
 void tele_update(Entity* self);
@@ -18,7 +18,7 @@ Entity* tele_spawn(GFC_Vector3D position, GFC_Color color)
 	self->texture = gf3d_texture_load("models/primitives/flatgreen.png");
 	self->color = color;
 	self->position = position;
-	self->position.z -= 4.5;
+	self->position.z -= 3.5;
 	self->rotation = gfc_vector3d(0, 0, 0);
 	self->scale = gfc_vector3d(2, 2, 0.1);
 	self->think = tele_think; 

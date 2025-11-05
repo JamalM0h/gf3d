@@ -47,9 +47,9 @@ int main(int argc,char *argv[])
     Mesh *mesh;
     Texture *texture;
     float theta = 0;
-    GFC_Vector3D lightPos = {0,0,-100};
+    GFC_Vector3D lightPos = {0,0,-1000};
     GFC_Vector3D *cam = gfc_vector3d_new();
-    GFC_Matrix4 id, dinoM;
+    GFC_Matrix4 id;
     Entity* player;
     //initializtion    
     parse_arguments(argc,argv);
@@ -71,7 +71,7 @@ int main(int argc,char *argv[])
     slog_sync();
     monster_spawn(gfc_vector3d(0,0,0), GFC_COLOR_WHITE); 
     monster_spawn(gfc_vector3d(8, 8, 0), GFC_COLOR_WHITE); 
-    world_spawn(gfc_vector3d(0, 0, -5), GFC_COLOR_WHITE);
+    world_spawn(gfc_vector3d(0, 0, -4), GFC_COLOR_WHITE);
     player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
     player->camera = cam;
     //*cam = gfc_vector3d(0, 35, 0);
@@ -80,13 +80,14 @@ int main(int argc,char *argv[])
 
     //mesh = gf3d_mesh_load("models/dino/dino.obj");  
     //texture = gf3d_texture_load("models/dino/dino.png");
-    mesh = gf3d_mesh_load("models/sky/sky.obj");
-    texture = gf3d_texture_load("models/sky/sky.png");
+    mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+    texture = gf3d_texture_load("models/alienCave.png");
+    gfc_matrix2_identity(id); 
     gfc_matrix4_from_vectors(
-        id,
+        id, 
         gfc_vector3d(0,0,0),
-        gfc_vector3d(0, 0, 0), 
-        gfc_vector3d(20, 20, 20));
+        gfc_vector3d(GFC_PI, 0, 0), 
+        gfc_vector3d(-5000, -5000, -5000));
     
     // main game loop    
     while(!_done)
@@ -101,13 +102,15 @@ int main(int argc,char *argv[])
         //camera updaes
         gf3d_camera_update_view();
         gf3d_vgraphics_render_start();
-            //3d draws
-            gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture);   
+            //3d draws   
+            gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture);
             entity_draw_all(lightPos, GFC_COLOR_WHITE);  
             gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));
-            gf2d_font_draw_line_tag("O", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(630, 370));
-            if (player->SpecCD >= 1.0)gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(990, 620));
-            if (player->MoveCD >= 1.0)gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(990, 670));
+           // gf2d_font_draw_line_tag("X", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(631, 390));
+            if (player->SpecCD >= 1.0)gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(990, 620)); 
+            else gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_RED, gfc_vector2d(990, 620));   
+            if (player->MoveCD >= 1.0)gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(990, 670));
+            else gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_RED, gfc_vector2d(990, 670));
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();

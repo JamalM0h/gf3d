@@ -90,18 +90,18 @@ void entity_draw(Entity* ent, GFC_Vector3D lightPos, GFC_Color lightColor)
 		ent->position,
 		ent->rotation,
 		ent->scale);
-	gf3d_mesh_draw(  
-		ent->mesh, 
-		modelMat, 
-		ent->color, 
-		ent->texture, 
-		lightPos, 
-	 	lightColor); 
-	//gf3d_sky_draw(  
-	//	ent->mesh, 
-	//	modelMat, 
-	//	ent->color, 
-	//	ent->texture); 
+	gf3d_mesh_draw(   
+		ent->mesh,  
+		modelMat,  
+		ent->color,  
+		ent->texture,  
+		lightPos,  
+		lightColor);  
+	//gf3d_sky_draw(   
+		//ent->mesh,  
+		//modelMat,  
+		//ent->color,  
+		//ent->texture);  
 }
 
 void entity_draw_all(GFC_Vector3D lightPos, GFC_Color lightColor)
@@ -154,13 +154,14 @@ void entity_collision(Entity* self)
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++)
 	{
+		if (!&entity_system.entity_list[i].bounds)continue;  
 		if (entity_system.entity_list[i].obj == self->obj)continue;
 		if (entity_system.entity_list[i].obj == "world")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue;
-		if (entity_system.entity_list[i].obj == "projectile")continue;
-		if (self->obj == "projectile" && entity_system.entity_list[i].obj != "monster")continue;
+		if (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket")continue;
+		if ((self->obj == "projectile" || self->obj == "rocket") && entity_system.entity_list[i].obj != "monster")continue;
 		if (self->obj == "turret" && entity_system.entity_list[i].obj != "monster")continue;
-		if (self->obj == "monster" && entity_system.entity_list[i].obj == "projectile")continue;
+		if (self->obj == "monster" && (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket"))continue;
 		if (self->obj == "monster" && entity_system.entity_list[i].obj == "tele")continue;
 		//slog("%s checking against %s", self->obj, entity_system.entity_list[i].obj); 
 		if (gfc_box_overlap(self->bounds, entity_system.entity_list[i].bounds)) 
@@ -178,8 +179,11 @@ void entity_system_collision()
 	int i;
 	for (i = 0; i < entity_system.entity_max; i++)
 	{
+		if (!&entity_system.entity_list[i].bounds)continue;   
 		if (!entity_system.entity_list[i]._inuse)continue;
 		if (entity_system.entity_list[i].obj == "world")continue;
+		if (entity_system.entity_list[i].obj == "monster")continue;
+		if (entity_system.entity_list[i].obj == "bufffield")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue; 
 		//slog("obj name %s", entity_system.entity_list[i].obj); 
 		entity_collision(&entity_system.entity_list[i]); 

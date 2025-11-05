@@ -105,8 +105,8 @@ void gf3d_vgraphics_setup(
 
 void gf3d_vgraphics_init(const char* config)
 {
-    Pipeline* renderPipe = NULL, *skyPipe = NULL;
-    SJson* json, * setup;
+    Pipeline *renderPipe = NULL, *skyPipe = NULL;
+    SJson* json, *setup;
     const char* windowName = NULL;
     GFC_Vector2D resolution = { 1024,768 };
     short int fullscreen = 0;
@@ -204,6 +204,7 @@ void gf3d_vgraphics_init(const char* config)
     gf2d_sprite_manager_init(1024);  
     
     renderPipe = gf3d_mesh_get_pipeline();
+    //skyPipe = gf3d_mesh_get_sky_pipeline(); 
    
     gf3d_swapchain_create_depth_image();
     gf3d_swapchain_setup_frame_buffers(renderPipe); 

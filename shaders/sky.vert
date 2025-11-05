@@ -20,23 +20,13 @@ layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inTexCoord;
 
 layout(location = 0) out vec2 fragTexCoord;
-layout(location = 1) out vec3 outNormal;
-layout(location = 2) out vec4 colorMod;
-layout(location = 3) out vec4 worldPosition;
-layout(location = 4) out vec4 cameraPos;
 
 
 void main()
 {
-   mat3 normalMatrix;
    mat4 mvp = ubo.proj * ubo.view * ubo.model;
 
    gl_Position = mvp * vec4(inPosition, 1.0);
-   worldPosition = ubo.model * vec4(inPosition,1.0);
 
-   normalMatrix = transpose(inverse(mat3(ubo.model)));
-   outNormal = normalize(normalMatrix * inNormal);
-
-   colorMod = ubo.color;
    fragTexCoord = inTexCoord;
 }

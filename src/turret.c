@@ -1,6 +1,6 @@
 #include "simple_logger.h"
 
-#include "turret.h"
+#include "deploy.h"
 #include "projectile.h"
 
 void turret_think(Entity* self);
@@ -43,7 +43,7 @@ void turret_think(Entity* self)
 
 	if (self->attSpeed < 1)
 	{
-		self->attSpeed += 0.02;
+		self->attSpeed += 0.2;
 	}
 }
 void turret_update(Entity* self)
@@ -90,7 +90,7 @@ void turret_collide(Entity* self, Entity* collide)
 		dir->z = 0;
 		gfc_vector3d_normalize(dir);
 		create_projectile(self->position, *dir , GFC_COLOR_WHITE);    
-		slog("fired");
+		//slog("fired");
 		//slog("turret collided with %s", collide->obj); 
 	}
 }

@@ -68,4 +68,12 @@ void monster_collide(Entity* self, Entity* collide)
 		self->position.x += collide->dirtomove.x * 5;
 		self->position.y += collide->dirtomove.y * 5;
 	}
+	if (collide->obj == "player")
+	{
+		GFC_Vector2D *monstermovedir = gfc_vector2d_new(); 
+		*monstermovedir = gfc_vector2d(self->position.x - collide->position.x, self->position.y - collide->position.y);  
+		gfc_vector2d_normalize(monstermovedir);
+		self->position.x += monstermovedir->x * 5; 
+		self->position.y += monstermovedir->y * 5; 
+	}
 }
