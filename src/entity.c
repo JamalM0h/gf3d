@@ -67,11 +67,13 @@ void entity_draw_shadow(Entity* ent)
 {
 	GFC_Matrix4 modelMat;
 	if (!ent)return;
+	if (ent->obj == "projectile")return;
+	if (ent->obj == "world")return;
 	gfc_matrix4_from_vectors(
 		modelMat,
-		ent->position,
+		gfc_vector3d(ent->position.x, ent->position.y, ent->position.z - ent->scale.z),
 		ent->rotation,
-		gfc_vector3d(ent->scale.x,ent->scale.y, 0.01));
+		gfc_vector3d(ent->scale.x,ent->scale.y, 0.001));
 	gf3d_mesh_draw(
 		ent->mesh,
 		modelMat,
@@ -96,7 +98,8 @@ void entity_draw(Entity* ent, GFC_Vector3D lightPos, GFC_Color lightColor)
 		ent->color,  
 		ent->texture,  
 		lightPos,  
-		lightColor);  
+		lightColor); 
+	entity_draw_shadow(ent);
 	//gf3d_sky_draw(   
 		//ent->mesh,  
 		//modelMat,  
@@ -184,6 +187,11 @@ void entity_system_collision()
 		if (entity_system.entity_list[i].obj == "world")continue;
 		if (entity_system.entity_list[i].obj == "monster")continue;
 		if (entity_system.entity_list[i].obj == "bufffield")continue;
+		if (entity_system.entity_list[i].obj == "syringe")continue;
+		if (entity_system.entity_list[i].obj == "boots")continue;
+		if (entity_system.entity_list[i].obj == "movCd")continue;
+		if (entity_system.entity_list[i].obj == "specCd")continue;
+		if (entity_system.entity_list[i].obj == "itemcon")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue; 
 		//slog("obj name %s", entity_system.entity_list[i].obj); 
 		entity_collision(&entity_system.entity_list[i]); 

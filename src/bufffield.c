@@ -52,7 +52,7 @@ void buff_field_update(Entity* self)
 
 	self->ttl += 1;
 
-	if (self->ttl >= 800)
+	if (self->ttl >= 300)
 	{
 		turret_free(self);
 	}

@@ -41,12 +41,12 @@ void gf3d_mesh_manager_close()
 	int i;
 	for (i = 0; i < mesh_manager.mesh_count; i++)
 	{
-		gf3d_mesh_delete(&mesh_manager.mesh_list[i]);  
+		gf3d_mesh_delete(&mesh_manager.mesh_list[i]); 
 	}
 	if (mesh_manager.mesh_list)
 	{
-		mesh_manager.mesh_list = NULL; 
-		free(mesh_manager.mesh_list);
+		free(mesh_manager.mesh_list);  
+		mesh_manager.mesh_list = NULL;   
 	}
 
 	memset(&mesh_manager, 0, sizeof(MeshManager));
@@ -132,7 +132,7 @@ void gf3d_mesh_primitive_delete_buffers(MeshPrimitive *prim)
 	}
 	if (prim->faceBufferMemory != VK_NULL_HANDLE)
 	{
-		vkDestroyBuffer(mesh_manager.device, prim->faceBufferMemory, NULL);
+		vkFreeMemory(mesh_manager.device, prim->faceBufferMemory, NULL); 
 		prim->faceBuffer = VK_NULL_HANDLE;
 	}
 	if (prim->vertexBuffer != VK_NULL_HANDLE)
@@ -142,7 +142,7 @@ void gf3d_mesh_primitive_delete_buffers(MeshPrimitive *prim)
 	}
 	if (prim->vertexBufferMemory != VK_NULL_HANDLE)
 	{
-		vkDestroyBuffer(mesh_manager.device, prim->vertexBufferMemory, NULL);
+		vkFreeMemory(mesh_manager.device, prim->vertexBufferMemory, NULL);
 		prim->vertexBufferMemory = VK_NULL_HANDLE;
 	}
 }
@@ -235,7 +235,9 @@ void gf3d_mesh_delete(Mesh *mesh)
 	{
 		primitive = gfc_list_get_nth(mesh->primitives, i);
 		if (!primitive)continue;
+		slog("deleting prims"); 
 		gf3d_mesh_primitive_free(primitive);
+		slog("prim deleted");
 	}
 	gfc_list_delete(mesh->primitives);
 	memset(mesh, 0, sizeof(Mesh));

@@ -27,6 +27,7 @@ typedef struct Entity_S
 	int				ttl;
 	float			attSpeed;
 	float			attMod;
+	float			speedMod;
 	float			MoveCD;
 	float			SpecCD;
 	Bool			temp;

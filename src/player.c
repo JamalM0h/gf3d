@@ -13,7 +13,7 @@ void player_collide(Entity* self, Entity* collide);
 GFC_Vector3D dir = { 0 }, velocity = { 0 }, up = { 0 }, angle = { 0 };
 int jump = 0, class = 0, isMech = 0, swordspin = 0, swordswing = 0;
 float theta = 0, zax = 5, yax = 40;
-float dashMod = 1, leaping = 0, jetFuel = 100, speedMod = 1;
+float dashMod = 1, leaping = 0, jetFuel = 100, speedMod = 1, moveCDMod = 0, specCDMod = 0; 
 Entity* teleent = NULL, * teleext = NULL;  
 Bool swordside = false, buffedfield = false;
 
@@ -38,6 +38,7 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	self->bounds = hitbox; 
 	self->attSpeed = 1;
 	self->attMod = 3.0;
+	self->speedMod = 1.0;
 	self->MoveCD = 1.0;
 	self->SpecCD = 1.0;
 
@@ -165,8 +166,8 @@ void player_think(Entity* self)
 		else if (class == 4)self->attMod = 0.2f;
 	}
 
-	if(self->MoveCD < 1.0)self->MoveCD += 0.01;
-	if(self->SpecCD < 1.0)self->SpecCD += 0.01;
+	if(self->MoveCD < 1.0)self->MoveCD += 0.01 + moveCDMod;
+	if(self->SpecCD < 1.0)self->SpecCD += 0.01 + specCDMod;
 
 	if (class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
 	{
@@ -279,6 +280,7 @@ void player_think(Entity* self)
 	}
 
 	gfc_vector3d_scale(velocity, gfc_vector3d(dir.x * speedMod, dir.y * speedMod, 0), 0.5);
+	gfc_vector3d_scale(velocity, velocity, self->speedMod);
  
 	SDL_GetRelativeMouseState(&MouseRelX, &MouseRelY);  
 
@@ -378,8 +380,16 @@ void player_update(Entity* self)
 		swordswing -= 1;
 	}
 
-	gfc_vector3d_add(self->position, self->position, velocity);
-	gfc_vector3d_add(self->position, self->position, up);
+	if ((!gfc_vector3d_is_zero(velocity)) || (!gfc_vector3d_is_zero(up)))
+	{
+		gfc_vector3d_add(self->position, self->position, velocity);
+		gfc_vector3d_add(self->position, self->position, up);
+	}
+
+	if (self->position.y > 280)self->position.y = 280;
+	else if (self->position.y < -280)self->position.y = -280;
+	if (self->position.x > 280)self->position.x = 280;
+	else if(self->position.x < -280)self->position.x = -280;
 
 	*self->camera = self->position; 
 	self->camera->z += zax; 
@@ -402,8 +412,14 @@ void player_update(Entity* self)
 	self->bounds.y = self->position.y - 2.5;
 	self->bounds.z = self->position.z - 2.5;
 
-	buffedfield = false;
+	if ((swordspin > 0) && (class == 2))
+	{
+		self->bounds.x = self->position.x - 5;
+		self->bounds.y = self->position.y - 5;
+		self->bounds.z = self->position.z - 5;
+	}
 
+	buffedfield = false;
 }
 
 void player_collide(Entity* self, Entity* collide)
@@ -423,6 +439,31 @@ void player_collide(Entity* self, Entity* collide)
 		collide->collide(collide, self); 
 	}
 	if (collide->obj == "bufffield")buffedfield = true;
+	if (collide->obj == "boots")
+	{
+		self->speedMod += 0.05;
+		collide->free(collide);
+	}
+	if (collide->obj == "syringe")
+	{
+		self->attMod += 0.05;
+		collide->free(collide);
+	}
+	if (collide->obj == "movCd")
+	{
+		moveCDMod += 0.05;
+		collide->free(collide);
+	}
+	if (collide->obj == "specCd")
+	{
+		specCDMod += 0.05;
+		collide->free(collide);
+	}
+	if ((collide->obj == "itemcon") && (gfc_input_command_pressed("interact")))
+	{
+		collide->collide(collide, self); 
+	}
+
 
 	//slog("player collided with %s", collide->obj);
 }

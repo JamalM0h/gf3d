@@ -110,8 +110,8 @@ void projectile_update(Entity* self)
 		self->bounds.y = self->position.y - 0.5;
 		self->bounds.z = self->position.z - 0.5;
 
-		self->position.x += self->dirtomove.x * 4;
-		self->position.y += self->dirtomove.y * 4;
+		self->position.x += self->dirtomove.x * 5;
+		self->position.y += self->dirtomove.y * 5;
 		self->position.z += self->dirtomove.z;
 	}
 
@@ -130,15 +130,6 @@ void projectile_update(Entity* self)
 			self->position.z = 0;
 
 			create_explosion(self->position, GFC_COLOR_WHITE);
-
-			//create_projectile(self->position, gfc_vector3d(0.1, 0, 0), GFC_COLOR_WHITE); 
-			//create_projectile(self->position, gfc_vector3d(-0.1, 0, 0), GFC_COLOR_WHITE);
-			//create_projectile(self->position, gfc_vector3d(0, 0.1, 0), GFC_COLOR_WHITE);
-			//create_projectile(self->position, gfc_vector3d(0, -0.1, 0), GFC_COLOR_WHITE);
-			//create_projectile(self->position, gfc_vector3d(0.1, -0.1, 0), GFC_COLOR_WHITE);
-			//create_projectile(self->position, gfc_vector3d(-0.1, 0.1, 0), GFC_COLOR_WHITE);
-			//create_projectile(self->position, gfc_vector3d(0.1, 0.1, 0), GFC_COLOR_WHITE);
-			//create_projectile(self->position, gfc_vector3d(-0.1, -0.1, 0), GFC_COLOR_WHITE);
 
 			projectile_free(self);
 		}

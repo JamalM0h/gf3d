@@ -26,7 +26,7 @@ Entity* monster_spawn(GFC_Vector3D position, GFC_Color color)
 	self->collide = monster_collide;
 	self->_inuse = 1;
 
-	GFC_Box hitbox = gfc_box(self->position.x - 1.5, self->position.y - 1.5, self->position.z - 1.5, 4, 4, 4); 
+	GFC_Box hitbox = gfc_box(self->position.x - 2.5, self->position.y - 2.5, self->position.z - 2.5, 5, 5, 5); 
 
 	self->bounds = hitbox;
 
@@ -41,9 +41,9 @@ void monster_update(Entity* self)
 {
 	if (!self)return; 
 
-	self->bounds.x = self->position.x - 1.5;
-	self->bounds.y = self->position.y - 1.5;
-	self->bounds.z = self->position.z - 1.5;
+	self->bounds.x = self->position.x - 2.5;
+	self->bounds.y = self->position.y - 2.5;
+	self->bounds.z = self->position.z - 2.5;
 }
 
 void monster_free(Entity* self)

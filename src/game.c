@@ -25,6 +25,8 @@
 #include "entity.h"
 #include "monster.h"
 #include "world.h"
+#include "item.h"
+#include "itemcontain.h"
 #include "player.h"
 
 extern int __DEBUG;
@@ -69,14 +71,18 @@ int main(int argc,char *argv[])
     //game init
     srand(SDL_GetTicks());
     slog_sync();
-    monster_spawn(gfc_vector3d(0,0,0), GFC_COLOR_WHITE); 
-    monster_spawn(gfc_vector3d(8, 8, 0), GFC_COLOR_WHITE); 
+    monster_spawn(gfc_vector3d(28,0,0), GFC_COLOR_WHITE); 
+    monster_spawn(gfc_vector3d(20, 0, 0), GFC_COLOR_WHITE); 
     world_spawn(gfc_vector3d(0, 0, -4), GFC_COLOR_WHITE);
     player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
     player->camera = cam;
-    //*cam = gfc_vector3d(0, 35, 0);
-
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    item_spawn(gfc_vector3d(20, 20, 0), GFC_COLOR_WHITE, gfc_vector3d(0,0,0), false, 0);  
+    item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,1);
+    item_container_spawn(gfc_vector3d(0, -30, 0), GFC_COLOR_WHITE, player->position,0);
+    item_container_spawn(gfc_vector3d(0, -40, 0), GFC_COLOR_WHITE, player->position,2);
+    item_container_spawn(gfc_vector3d(0, -50, 0), GFC_COLOR_WHITE, player->position,3);
+    
+    SDL_SetRelativeMouseMode(SDL_TRUE); 
 
     //mesh = gf3d_mesh_load("models/dino/dino.obj");  
     //texture = gf3d_texture_load("models/dino/dino.png");
@@ -95,7 +101,7 @@ int main(int argc,char *argv[])
         gfc_input_update();
         gf2d_mouse_update();
         gf2d_font_update();
-        entity_think_all(); 
+        entity_think_all();  
         entity_update_all();
         entity_system_collision(); 
         theta += 0.1;
@@ -104,7 +110,7 @@ int main(int argc,char *argv[])
         gf3d_vgraphics_render_start();
             //3d draws   
             gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture);
-            entity_draw_all(lightPos, GFC_COLOR_WHITE);  
+            entity_draw_all(lightPos, GFC_COLOR_WHITE);   
             gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));
            // gf2d_font_draw_line_tag("X", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(631, 390));
             if (player->SpecCD >= 1.0)gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(990, 620)); 
@@ -114,11 +120,11 @@ int main(int argc,char *argv[])
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();
-    }    
+    }
     vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());    
     //cleanup
-    slog("gf3d program end");
     exit(0);
+    slog("gf3d program end");
     slog_sync();
     return 0;
 }
