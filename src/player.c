@@ -41,6 +41,16 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	self->speedMod = 1.0;
 	self->MoveCD = 1.0;
 	self->SpecCD = 1.0;
+	self->health = 100;
+	self->jumpForce = 1.0;
+	self->armor = 5;
+
+	self->inventory[0] = 0; 
+	self->inventory[1] = 0;
+	self->inventory[2] = 0;
+	self->inventory[3] = 0;
+	self->inventory[4] = 0;
+	self->inventory[5] = 0;
 
 	return self;
 }
@@ -89,7 +99,7 @@ void player_think(Entity* self)
 
 	if (gfc_input_command_pressed("jump") && (jump == 1))
 	{
-		up.z = 2.5;
+		up.z = 2.5 * self->jumpForce;
 		jump = 0;
 	}
 	else if (self->position.z > 0)
@@ -129,7 +139,6 @@ void player_think(Entity* self)
 			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE);
 			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.20), GFC_COLOR_WHITE);
 			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.20), GFC_COLOR_WHITE);
-			create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, 0), GFC_COLOR_WHITE, true); 
 		}
 		else if (class == 4)
 		{
@@ -171,7 +180,7 @@ void player_think(Entity* self)
 
 	if (class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
 	{
-		dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.3, 1.3, 0));
+		dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.4, 1.4, 0));
 		self->MoveCD = 0;
 	}
 	if (class == 0 && gfc_input_command_released("movementab")) 
@@ -252,8 +261,13 @@ void player_think(Entity* self)
 	}
 	if (class == 3 && gfc_input_command_held("specialab") && isMech <= 0 && self->SpecCD >= 1.0)
 	{
-		isMech = 500;
+		mech_spawn(gfc_vector3d(self->position.x + (camforward->x * 30), self->position.y + (camforward->y * 30), 200), GFC_COLOR_WHITE, self->rotation.z - GFC_PI);  
 		self->SpecCD = 0;
+	}
+	if (class == 3 && gfc_input_command_held("specialab") && (isMech > 0) && (self->attSpeed >= 1))
+	{
+		create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, 0), GFC_COLOR_WHITE, true);
+		self->attSpeed = 0;
 	}
 	if (class == 3 && isMech == 500)
 	{
@@ -439,29 +453,64 @@ void player_collide(Entity* self, Entity* collide)
 		collide->collide(collide, self); 
 	}
 	if (collide->obj == "bufffield")buffedfield = true;
-	if (collide->obj == "boots")
-	{
-		self->speedMod += 0.05;
-		collide->free(collide);
-	}
 	if (collide->obj == "syringe")
 	{
 		self->attMod += 0.05;
 		collide->free(collide);
+		self->inventory[0] += 1;
+	}
+	if (collide->obj == "boots")
+	{
+		self->speedMod += 0.05;
+		collide->free(collide);
+		self->inventory[1] += 1;
 	}
 	if (collide->obj == "movCd")
 	{
 		moveCDMod += 0.05;
 		collide->free(collide);
+		self->inventory[2] += 1;
 	}
 	if (collide->obj == "specCd")
 	{
 		specCDMod += 0.05;
 		collide->free(collide);
+		self->inventory[3] += 1;
+	}
+	if (collide->obj == "healthUp")
+	{
+		self->health += 25;
+		collide->free(collide);
+		self->inventory[4] += 1;
+	}
+	if (collide->obj == "jumpUp")
+	{
+		self->jumpForce += 0.10;
+		collide->free(collide);
+		self->inventory[5] += 1;
+	}
+	if (collide->obj == "armor")
+	{
+		self->armor += 5;
+		collide->free(collide);
+		self->inventory[6] += 1;
+	}
+	if (collide->obj == "damage")
+	{
+		self->damageMod += 5;
+		collide->free(collide);
+		self->inventory[7] += 1;
 	}
 	if ((collide->obj == "itemcon") && (gfc_input_command_pressed("interact")))
 	{
 		collide->collide(collide, self); 
+	}
+	if ((collide->obj == "mech") && (gfc_input_command_pressed("interact")))
+	{
+		self->position.x = collide->position.x;
+		self->position.y = collide->position.y;
+		isMech = 500;
+		collide->free(collide);
 	}
 
 

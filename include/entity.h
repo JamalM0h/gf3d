@@ -25,11 +25,16 @@ typedef struct Entity_S
 	GFC_Box         bounds;
 	GFC_Vector3D    dirtomove;
 	int				ttl;
+	int			    health;
+	int			    armor;
+	float           jumpForce;
 	float			attSpeed;
 	float			attMod;
 	float			speedMod;
+	float			damageMod;
 	float			MoveCD;
 	float			SpecCD;
+	int             inventory[9];
 	Bool			temp;
 	GFC_Vector3D    *camera;
 	void			(*draw)(struct Entity_S *self);

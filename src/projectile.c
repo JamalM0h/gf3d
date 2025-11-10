@@ -71,8 +71,8 @@ Entity* create_explosion(GFC_Vector3D position, GFC_Color color)
 	Entity* self;
 	self = entity_new();
 	if (!self)return;
-	gfc_line_cpy(self->name, "rocket");
-	self->obj = "rocket";
+	gfc_line_cpy(self->name, "explo");
+	self->obj = "explo";
 	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
 	self->texture = gf3d_texture_load("models/primitives/flatorange.png");
 	self->color = color;

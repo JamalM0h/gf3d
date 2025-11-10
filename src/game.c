@@ -49,11 +49,14 @@ int main(int argc,char *argv[])
     Mesh *mesh;
     Texture *texture;
     float theta = 0;
+    int offset = 0;
     GFC_Vector3D lightPos = {0,0,-1000};
     GFC_Vector3D *cam = gfc_vector3d_new();
     GFC_Matrix4 id;
     Entity* player;
-    //initializtion    
+    Sprite* itembox, * syringe, * boot, * moveCd, * specCd, * healthUp, * jumpUp, * armor, *sword; 
+    char array[4];
+    //initializtion  
     parse_arguments(argc,argv);
     init_logger("gf3d.log",0);
     slog("gf3d begin");
@@ -71,16 +74,19 @@ int main(int argc,char *argv[])
     //game init
     srand(SDL_GetTicks());
     slog_sync();
-    monster_spawn(gfc_vector3d(28,0,0), GFC_COLOR_WHITE); 
-    monster_spawn(gfc_vector3d(20, 0, 0), GFC_COLOR_WHITE); 
+    monster_spawn(gfc_vector3d(28,0,1), GFC_COLOR_WHITE); 
+    monster_spawn(gfc_vector3d(20, 0, 1), GFC_COLOR_WHITE); 
     world_spawn(gfc_vector3d(0, 0, -4), GFC_COLOR_WHITE);
     player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
     player->camera = cam;
-    item_spawn(gfc_vector3d(20, 20, 0), GFC_COLOR_WHITE, gfc_vector3d(0,0,0), false, 0);  
-    item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,1);
-    item_container_spawn(gfc_vector3d(0, -30, 0), GFC_COLOR_WHITE, player->position,0);
+    item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,0); 
+    item_container_spawn(gfc_vector3d(0, -30, 0), GFC_COLOR_WHITE, player->position,1);
     item_container_spawn(gfc_vector3d(0, -40, 0), GFC_COLOR_WHITE, player->position,2);
     item_container_spawn(gfc_vector3d(0, -50, 0), GFC_COLOR_WHITE, player->position,3);
+    item_container_spawn(gfc_vector3d(0, -60, 0), GFC_COLOR_WHITE, player->position,4);
+    item_container_spawn(gfc_vector3d(0, -70, 0), GFC_COLOR_WHITE, player->position,5);
+    item_container_spawn(gfc_vector3d(0, -80, 0), GFC_COLOR_WHITE, player->position,6);
+    item_container_spawn(gfc_vector3d(0, -90, 0), GFC_COLOR_WHITE, player->position,7); 
     
     SDL_SetRelativeMouseMode(SDL_TRUE); 
 
@@ -94,6 +100,16 @@ int main(int argc,char *argv[])
         gfc_vector3d(0,0,0),
         gfc_vector3d(GFC_PI, 0, 0), 
         gfc_vector3d(-5000, -5000, -5000));
+
+    itembox = gf2d_sprite_load("models/ui/itembox.png", 640, 64, 0);
+    syringe = gf2d_sprite_load("models/ui/syringerender.png", 64, 64, 0);
+    boot = gf2d_sprite_load("models/ui/bootrender.png", 64, 64, 0);
+    moveCd = gf2d_sprite_load("models/ui/moveCdrender.png", 64, 64, 0); 
+    specCd = gf2d_sprite_load("models/ui/specCdrender.png", 64, 64, 0); 
+    healthUp = gf2d_sprite_load("models/ui/healthuprender.png", 64, 64, 0); 
+    jumpUp = gf2d_sprite_load("models/ui/springrender.png", 64, 64, 0);
+    armor = gf2d_sprite_load("models/ui/armorrender.png", 64, 64, 0);
+    sword = gf2d_sprite_load("models/ui/swordrender.png", 64, 64, 0);  
     
     // main game loop    
     while(!_done)
@@ -111,12 +127,82 @@ int main(int argc,char *argv[])
             //3d draws   
             gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture);
             entity_draw_all(lightPos, GFC_COLOR_WHITE);   
-            gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));
+            //gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));
            // gf2d_font_draw_line_tag("X", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(631, 390));
             if (player->SpecCD >= 1.0)gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(990, 620)); 
             else gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_RED, gfc_vector2d(990, 620));   
             if (player->MoveCD >= 1.0)gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(990, 670));
             else gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_RED, gfc_vector2d(990, 670));
+
+            snprintf(array, sizeof(array), "%i", player->health);
+            gf2d_font_draw_line_tag("Health: ", FT_H1, GFC_COLOR_GREY, gfc_vector2d(10, 670));
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(125, 672));
+
+            snprintf(array, sizeof(array), "%i", player->armor); 
+            gf2d_font_draw_line_tag("Armor: ", FT_H1, GFC_COLOR_GREY, gfc_vector2d(10, 630));
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(125, 632));
+
+            gf2d_sprite_draw(itembox, gfc_vector2d(320,20),NULL,NULL,NULL,NULL,NULL,NULL,NULL); 
+
+            offset = 0;
+
+            if (player->inventory[0] != 0)
+            {
+                gf2d_sprite_draw(syringe, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+                snprintf(array, sizeof(array), "%i", player->inventory[0]); 
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94)); 
+                offset += 64;
+            }
+            if (player->inventory[1] != 0)
+            {
+                gf2d_sprite_draw(boot, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+                snprintf(array, sizeof(array), "%i", player->inventory[1]);
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94));
+                offset += 64;
+            }
+            if (player->inventory[2] != 0)
+            {
+                gf2d_sprite_draw(moveCd, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+                snprintf(array, sizeof(array), "%i", player->inventory[2]); 
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94)); 
+                offset += 64;
+            }
+            if (player->inventory[3] != 0)
+            {
+                gf2d_sprite_draw(specCd, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+                snprintf(array, sizeof(array), "%i", player->inventory[3]);
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94));
+                offset += 64;
+            }
+            if (player->inventory[4] != 0)
+            {
+                gf2d_sprite_draw(healthUp, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+                snprintf(array, sizeof(array), "%i", player->inventory[4]);
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94));
+                offset += 64;
+            }
+            if (player->inventory[5] != 0)
+            {
+                gf2d_sprite_draw(jumpUp, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+                snprintf(array, sizeof(array), "%i", player->inventory[5]);
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94));
+                offset += 64;
+            }
+            if (player->inventory[6] != 0)
+            {
+                gf2d_sprite_draw(armor, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL);  
+                snprintf(array, sizeof(array), "%i", player->inventory[6]); 
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94)); 
+                offset += 64; 
+            }
+            if (player->inventory[7] != 0)
+            {
+                gf2d_sprite_draw(sword, gfc_vector2d(320 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+                snprintf(array, sizeof(array), "%i", player->inventory[7]);
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(343 + offset, 94));
+                offset += 64;
+            }
+
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
         game_frame_delay();
