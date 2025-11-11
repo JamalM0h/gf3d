@@ -26,6 +26,7 @@ typedef struct Entity_S
 	GFC_Vector3D    dirtomove;
 	int				ttl;
 	int			    health;
+	int				maxhealth;
 	int			    armor;
 	float           jumpForce;
 	float			attSpeed;
@@ -34,6 +35,7 @@ typedef struct Entity_S
 	float			damageMod;
 	float			MoveCD;
 	float			SpecCD;
+	Bool			canInteract;
 	int             inventory[9];
 	Bool			temp;
 	GFC_Vector3D    *camera;

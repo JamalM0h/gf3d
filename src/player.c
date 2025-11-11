@@ -12,8 +12,8 @@ void player_collide(Entity* self, Entity* collide);
 
 GFC_Vector3D dir = { 0 }, velocity = { 0 }, up = { 0 }, angle = { 0 };
 int jump = 0, class = 0, isMech = 0, swordspin = 0, swordswing = 0;
-float theta = 0, zax = 5, yax = 40;
-float dashMod = 1, leaping = 0, jetFuel = 100, speedMod = 1, moveCDMod = 0, specCDMod = 0; 
+float theta = 0, zax = 5, yax = 40, initrot = 0;
+float dashMod = 1, leaping = 0, jetFuel = 100, speedMod = 1, moveCDMod = 0, specCDMod = 0, speedpadmode = 0;
 Entity* teleent = NULL, * teleext = NULL;  
 Bool swordside = false, buffedfield = false;
 
@@ -51,6 +51,14 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	self->inventory[3] = 0;
 	self->inventory[4] = 0;
 	self->inventory[5] = 0;
+	self->inventory[6] = 0;
+	self->inventory[7] = 0;
+	self->inventory[8] = 0;
+	self->inventory[9] = 0;
+
+	self->maxhealth = 100;
+
+	self->canInteract = false;
 
 	return self;
 }
@@ -130,9 +138,13 @@ void player_think(Entity* self)
 		{
 			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE);
 		}
+		else if (class == 1)
+		{
+			create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, false);
+		}
 		else if (class == 2)
 		{
-			swordswing = 10;
+			swordswing = 10 / self->attMod;
 		}
 		else if (class == 3 && isMech > 0)
 		{
@@ -156,24 +168,25 @@ void player_think(Entity* self)
 		else class = 0;
 		slog("class: %i", class);
 		if (class == 0)self->attMod = 3.0f;
-		else if (class == 1)self->attMod = 1.0f;
+		else if (class == 1)self->attMod = 0.25f;
 		else if (class == 2)
 		{
+			initrot = self->rotation.z;
 			self->attMod = 1.0f;
 			self->rotation.z += 1; 
 			self->mesh = gf3d_mesh_load("models/PlayerSword.obj");
 		}
-
 		else if (class == 3) 
 		{
 			self->attMod = 1.0f;
-			if (swordside == false)self->rotation.z -= 1;
-			else self->rotation.z += 1;
+			self->rotation.z = initrot;
 			self->mesh = gf3d_mesh_load("models/Player.obj");
 		}
 		
 		else if (class == 4)self->attMod = 0.2f;
 	}
+
+	if (gfc_input_command_pressed("cancel"))self->health -= 5;
 
 	if(self->MoveCD < 1.0)self->MoveCD += 0.01 + moveCDMod;
 	if(self->SpecCD < 1.0)self->SpecCD += 0.01 + specCDMod;
@@ -195,11 +208,13 @@ void player_think(Entity* self)
 		jump = 0;
 		leaping = 40;
 		self->MoveCD = 0;
+		create_explosion(self->position, GFC_COLOR_WHITE);
 	}
 	else if (class == 1 && leaping > 0)
 	{
 		dir.x += camforward->x * 3; 
 		dir.y += camforward->y * 3; 
+		up.z += 0.05;
 		leaping -= 1; 
 	}
 	if (class == 2 && (gfc_input_command_held("movementab")) && self->MoveCD >= 1.0)
@@ -254,6 +269,11 @@ void player_think(Entity* self)
 		buff_field_spawn(gfc_vector3d(self->position.x, self->position.y, -3.5), GFC_COLOR_WHITE);
 		self->SpecCD = 0;
 	}
+	if (class == 1 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0) 
+	{
+		rocket_beacon_spawn(self->position, GFC_COLOR_WHITE);
+		self->SpecCD = 0; 
+	} 
 	if (class == 2 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0)
 	{
 		swordspin = 60;
@@ -398,6 +418,17 @@ void player_update(Entity* self)
 	{
 		gfc_vector3d_add(self->position, self->position, velocity);
 		gfc_vector3d_add(self->position, self->position, up);
+
+		if (speedpadmode > 0)
+		{
+			gfc_vector3d_add(self->position, self->position, velocity);
+			gfc_vector3d_add(self->position, self->position, velocity);
+			gfc_vector3d_add(self->position, self->position, velocity);  
+			gfc_vector3d_add(self->position, self->position, velocity);
+			gfc_vector3d_add(self->position, self->position, velocity);
+			gfc_vector3d_add(self->position, self->position, velocity);
+			speedpadmode -= 1;
+		}
 	}
 
 	if (self->position.y > 280)self->position.y = 280;
@@ -433,7 +464,13 @@ void player_update(Entity* self)
 		self->bounds.z = self->position.z - 5;
 	}
 
+	if (self->maxhealth < self->health)
+	{
+		self->maxhealth = self->health;
+	}
+
 	buffedfield = false;
+	self->canInteract = false;
 }
 
 void player_collide(Entity* self, Entity* collide)
@@ -445,7 +482,7 @@ void player_collide(Entity* self, Entity* collide)
 		{
 			self->position.x = teleext->position.x; 
 			self->position.y = teleext->position.y; 
-			slog("turret collided with %s", collide->obj);  
+			//slog("turret collided with %s", collide->obj);  
 		}
 	}
 	if ((collide->obj == "monster") && (swordspin > 0))
@@ -512,7 +549,32 @@ void player_collide(Entity* self, Entity* collide)
 		isMech = 500;
 		collide->free(collide);
 	}
+	if ((collide->obj == "itemcon") || (collide->obj == "mech") || (collide->obj == "randomShrine") || (collide->obj == "healthShrine"))
+	{
+		self->canInteract = true; 
+	}
+	if (collide->obj == "jumppad")
+	{
+		up.z += 3;
+	} 
+	if (collide->obj == "speedpad")
+	{
+		speedpadmode = 15;
+	}
+	if ((collide->obj == "randomShrine") && (gfc_input_command_pressed("interact")))
+	{
+		collide->collide(collide, self);
+	}
+	if ((collide->obj == "healthShrine") && (gfc_input_command_pressed("interact")))
+	{
+		collide->collide(collide, self);
+	}
 
+	if ((collide->obj == "healthfield"))
+	{
+		if(self->health < self->maxhealth)
+		self->health += 1;
+	}
 
 	//slog("player collided with %s", collide->obj);
 }

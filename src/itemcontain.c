@@ -1,6 +1,6 @@
 #include "simple_logger.h"
 
-#include "itemcontain.h"
+#include "interact.h"
 #include "item.h"
 
 void itemcon_think(Entity* self);
@@ -34,7 +34,7 @@ Entity* item_container_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3
 		self->rotation.z += 1;
 	}
 
-	GFC_Box hitbox = gfc_box(self->position.x - 4, self->position.y - 4, self->position.z - 4, 8, 8, 8);
+	GFC_Box hitbox = gfc_box(self->position.x - 5, self->position.y - 5, self->position.z - 5, 10, 10, 10);
 
 	self->bounds = hitbox;
 
@@ -51,9 +51,9 @@ void itemcon_update(Entity* self)
 {
 	if (!self)return;
 
-	self->bounds.x = self->position.x - 4;
-	self->bounds.y = self->position.y - 4;
-	self->bounds.z = self->position.z - 4;
+	self->bounds.x = self->position.x - 5;
+	self->bounds.y = self->position.y - 5;
+	self->bounds.z = self->position.z - 5;
 
 }
 

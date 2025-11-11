@@ -63,10 +63,14 @@ void monster_free(Entity* self)
 void monster_collide(Entity* self, Entity* collide)
 {
 	if (!self)return;
-	if (collide->obj == "projectile")
+	if ((collide->obj == "projectile") || (collide->obj == "rocket"))
 	{
 		self->position.x += collide->dirtomove.x * 5;
 		self->position.y += collide->dirtomove.y * 5;
+		if (collide->obj == "rocket") {
+			self->position.x += collide->dirtomove.x * 5;
+			self->position.y += collide->dirtomove.y * 5;
+		}
 	}
 	if (collide->obj == "player")
 	{

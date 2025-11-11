@@ -70,12 +70,17 @@ void entity_draw_shadow(Entity* ent)
 	if ((ent->obj == "projectile") || (ent->obj == "rocket"))return;
 	if (ent->obj == "world")return;
 	if (ent->obj == "explo")return;
+	if (ent->obj == "itemcon")return;
+	if (ent->obj == "jumppad")return;
+	if (ent->obj == "speedpad")return;
+	if (ent->obj == "randomShrine")return;
+	if (ent->obj == "healthShrine")return;
 	gfc_matrix4_from_vectors(
 		modelMat,
 		gfc_vector3d(ent->position.x, ent->position.y, ent->position.z - ent->scale.z),
 		ent->rotation,
 		gfc_vector3d(ent->scale.x,ent->scale.y, 0.001));
-	if ((ent->obj == "mech") || (ent->obj == "player")) {
+	if ((ent->obj == "mech") || (ent->obj == "player") || (ent->obj == "turret")) {
 		gfc_matrix4_from_vectors(
 			modelMat,
 			gfc_vector3d(ent->position.x, ent->position.y, -2),
@@ -199,8 +204,16 @@ void entity_system_collision()
 		if (entity_system.entity_list[i].obj == "boots")continue;
 		if (entity_system.entity_list[i].obj == "movCd")continue;
 		if (entity_system.entity_list[i].obj == "specCd")continue;
+		if (entity_system.entity_list[i].obj == "healthUp")continue;
+		if (entity_system.entity_list[i].obj == "jumpUp")continue;
+		if (entity_system.entity_list[i].obj == "damage")continue;
+		if (entity_system.entity_list[i].obj == "armor")continue;
 		if (entity_system.entity_list[i].obj == "itemcon")continue;
+		if (entity_system.entity_list[i].obj == "randomShrine")continue;
+		if (entity_system.entity_list[i].obj == "healthShrine")continue;
 		if (entity_system.entity_list[i].obj == "mech")continue;
+		if (entity_system.entity_list[i].obj == "jumppad")continue;
+		if (entity_system.entity_list[i].obj == "speedpad")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue; 
 		//slog("obj name %s", entity_system.entity_list[i].obj); 
 		entity_collision(&entity_system.entity_list[i]); 

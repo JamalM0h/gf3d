@@ -26,7 +26,7 @@
 #include "monster.h"
 #include "world.h"
 #include "item.h"
-#include "itemcontain.h"
+#include "interact.h"
 #include "player.h"
 
 extern int __DEBUG;
@@ -74,19 +74,32 @@ int main(int argc,char *argv[])
     //game init
     srand(SDL_GetTicks());
     slog_sync();
+
     monster_spawn(gfc_vector3d(28,0,1), GFC_COLOR_WHITE); 
     monster_spawn(gfc_vector3d(20, 0, 1), GFC_COLOR_WHITE); 
+
+    jumppad_spawn(gfc_vector3d(25, 25, -3), GFC_COLOR_WHITE);
+    speedpad_spawn(gfc_vector3d(10, 80, -3), GFC_COLOR_WHITE);
+    speedpad_spawn(gfc_vector3d(10, 90, -3), GFC_COLOR_WHITE);
+    speedpad_spawn(gfc_vector3d(10, 100, -3), GFC_COLOR_WHITE);
+    speedpad_spawn(gfc_vector3d(10, 110, -3), GFC_COLOR_WHITE);
+
     world_spawn(gfc_vector3d(0, 0, -4), GFC_COLOR_WHITE);
+
     player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
     player->camera = cam;
+
     item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,0); 
-    item_container_spawn(gfc_vector3d(0, -30, 0), GFC_COLOR_WHITE, player->position,1);
-    item_container_spawn(gfc_vector3d(0, -40, 0), GFC_COLOR_WHITE, player->position,2);
-    item_container_spawn(gfc_vector3d(0, -50, 0), GFC_COLOR_WHITE, player->position,3);
-    item_container_spawn(gfc_vector3d(0, -60, 0), GFC_COLOR_WHITE, player->position,4);
-    item_container_spawn(gfc_vector3d(0, -70, 0), GFC_COLOR_WHITE, player->position,5);
-    item_container_spawn(gfc_vector3d(0, -80, 0), GFC_COLOR_WHITE, player->position,6);
-    item_container_spawn(gfc_vector3d(0, -90, 0), GFC_COLOR_WHITE, player->position,7); 
+    item_container_spawn(gfc_vector3d(0, -40, 0), GFC_COLOR_WHITE, player->position,1);
+    item_container_spawn(gfc_vector3d(0, -60, 0), GFC_COLOR_WHITE, player->position,2);
+    item_container_spawn(gfc_vector3d(0, -80, 0), GFC_COLOR_WHITE, player->position,3);
+    item_container_spawn(gfc_vector3d(0, -100, 0), GFC_COLOR_WHITE, player->position,4);
+    item_container_spawn(gfc_vector3d(-50, -20, 0), GFC_COLOR_WHITE, player->position,5);
+    item_container_spawn(gfc_vector3d(-50, -40, 0), GFC_COLOR_WHITE, player->position,6);
+    item_container_spawn(gfc_vector3d(-50, -60, 0), GFC_COLOR_WHITE, player->position,7); 
+
+    randomShrine_spawn(gfc_vector3d(50, 50, -3), GFC_COLOR_WHITE, player->position);
+    healthShrine_spawn(gfc_vector3d(-50, 50, -3), GFC_COLOR_WHITE);  
     
     SDL_SetRelativeMouseMode(SDL_TRUE); 
 
@@ -134,9 +147,18 @@ int main(int argc,char *argv[])
             if (player->MoveCD >= 1.0)gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(990, 670));
             else gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_RED, gfc_vector2d(990, 670));
 
+            if (player->canInteract == true)
+            {
+                gf2d_font_draw_line_tag("Press  Enter  Key", FT_H1, GFC_COLOR_GREY, gfc_vector2d(800, 360)); 
+            }
+
             snprintf(array, sizeof(array), "%i", player->health);
             gf2d_font_draw_line_tag("Health: ", FT_H1, GFC_COLOR_GREY, gfc_vector2d(10, 670));
             gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(125, 672));
+
+            snprintf(array, sizeof(array), "%i", player->maxhealth);
+            gf2d_font_draw_line_tag(" / ", FT_H1, GFC_COLOR_GREY, gfc_vector2d(175, 670));
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(200, 672));
 
             snprintf(array, sizeof(array), "%i", player->armor); 
             gf2d_font_draw_line_tag("Armor: ", FT_H1, GFC_COLOR_GREY, gfc_vector2d(10, 630));
