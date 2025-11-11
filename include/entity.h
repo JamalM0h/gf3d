@@ -36,7 +36,8 @@ typedef struct Entity_S
 	float			MoveCD;
 	float			SpecCD;
 	Bool			canInteract;
-	int             inventory[9];
+	Bool			isArc;
+	int             inventory[10];
 	Bool			temp;
 	GFC_Vector3D    *camera;
 	void			(*draw)(struct Entity_S *self);

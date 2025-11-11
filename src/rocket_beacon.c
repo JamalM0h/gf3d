@@ -41,7 +41,7 @@ void rocket_beacon_think(Entity* self)
 
 	if (self->attSpeed < 1)
 	{
-		self->attSpeed += 0.05;
+		self->attSpeed += 0.1;
 	}
 }
 void rocket_beacon_update(Entity* self)
@@ -59,7 +59,7 @@ void rocket_beacon_update(Entity* self)
 	{
 		rocket_rand_x = gfc_random_int(25);  
 		rocket_rand_y = gfc_random_int(25); 
-		create_rocket(gfc_vector3d(self->position.x - 12.5 + rocket_rand_x, self->position.y - 12.5 + rocket_rand_y, 100), gfc_vector3d(0, 0, 0), GFC_COLOR_WHITE, true); 
+		create_rocket(gfc_vector3d(self->position.x - 12.5 + rocket_rand_x, self->position.y - 12.5 + rocket_rand_y, 100), gfc_vector3d(0, 0, 0), GFC_COLOR_WHITE, true, self->damageMod);
 		self->attSpeed = 0;
 	}
 

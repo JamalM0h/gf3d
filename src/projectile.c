@@ -10,9 +10,7 @@ void projectile_collide(Entity* self, Entity* collide);
 void explosion_think(Entity* self);
 void explosion_update(Entity* self);
 
-Bool isArc = false;
-
-Entity* create_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color)
+Entity* create_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color, float damageMod)
 {
 	Entity* self;
 	self = entity_new();
@@ -32,6 +30,8 @@ Entity* create_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color col
 	GFC_Box hitbox = gfc_box(self->position.x,  self->position.y, self->position.z, 1, 1, 1);
 	self->bounds = hitbox;
 
+	self->damageMod = damageMod; 
+
 	self->dirtomove = dir;
 
 	self->ttl = 0;
@@ -39,7 +39,7 @@ Entity* create_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color col
 	return self;
 }
 
-Entity* create_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color, Bool arc) 
+Entity* create_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color, Bool arc, float damageMod) 
 {
 	Entity* self;
 	self = entity_new();
@@ -59,11 +59,13 @@ Entity* create_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color, 
 	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 1.5, 1.5, 1.5);
 	self->bounds = hitbox;
 
+	self->damageMod = damageMod;
+
 	self->dirtomove = dir;
 
-	isArc = arc;
+	self->isArc = arc; 
 
-	if(arc == true)self->dirtomove.z = 3;
+	if(self->isArc == true)self->dirtomove.z = 3; 
 
 	self->ttl = 0;
 
@@ -128,8 +130,8 @@ void projectile_update(Entity* self)
 		self->position.x += self->dirtomove.x * 4;
 		self->position.y += self->dirtomove.y * 4;
 		self->position.z += self->dirtomove.z;
-		if(isArc == true)self->dirtomove.z -= 0.50;
-		if ((self->position.z <= 0)  && (isArc == true))
+		if(self->isArc == true)self->dirtomove.z -= 0.50;
+		if ((self->position.z <= 0)  && (self->isArc == true))
 		{
 			self->position.z = 0;
 

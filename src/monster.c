@@ -65,11 +65,11 @@ void monster_collide(Entity* self, Entity* collide)
 	if (!self)return;
 	if ((collide->obj == "projectile") || (collide->obj == "rocket"))
 	{
-		self->position.x += collide->dirtomove.x * 5;
-		self->position.y += collide->dirtomove.y * 5;
+		self->position.x += (collide->dirtomove.x * 5) * collide->damageMod;
+		self->position.y += (collide->dirtomove.y * 5) * collide->damageMod;
 		if (collide->obj == "rocket") {
-			self->position.x += collide->dirtomove.x * 5;
-			self->position.y += collide->dirtomove.y * 5;
+			self->position.x += (collide->dirtomove.x * 5) * collide->damageMod;
+			self->position.y += (collide->dirtomove.y * 5) * collide->damageMod;
 		}
 	}
 	if (collide->obj == "player")
@@ -77,7 +77,7 @@ void monster_collide(Entity* self, Entity* collide)
 		GFC_Vector2D *monstermovedir = gfc_vector2d_new(); 
 		*monstermovedir = gfc_vector2d(self->position.x - collide->position.x, self->position.y - collide->position.y);  
 		gfc_vector2d_normalize(monstermovedir);
-		self->position.x += monstermovedir->x * 5; 
-		self->position.y += monstermovedir->y * 5; 
+		self->position.x += (monstermovedir->x * 5.0f) * collide->damageMod; 
+		self->position.y += (monstermovedir->y * 5.0f) * collide->damageMod; 
 	}
 }

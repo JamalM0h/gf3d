@@ -28,6 +28,8 @@ Entity* turret_spawn(GFC_Vector3D position, GFC_Color color)
 	self->attSpeed = 1;
 	self->_inuse = 1;
 
+	self->damageMod = 1;
+
 	GFC_Box hitbox = gfc_box(self->position.x - 50, self->position.y - 50, self->position.z - 50, 100, 100, 100);
 
 	self->bounds = hitbox;
@@ -89,7 +91,7 @@ void turret_collide(Entity* self, Entity* collide)
 		dir->y = (self->position.y - collide->position.y) * -1;
 		dir->z = 0;
 		gfc_vector3d_normalize(dir);
-		create_projectile(self->position, *dir , GFC_COLOR_WHITE);    
+		create_projectile(self->position, *dir , GFC_COLOR_WHITE, self->damageMod);
 		//slog("fired");
 		//slog("turret collided with %s", collide->obj); 
 	}
