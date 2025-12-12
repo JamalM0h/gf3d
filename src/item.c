@@ -12,6 +12,12 @@ Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Boo
 	self = entity_new();
 	if (!self)return;
 	gfc_line_cpy(self->name, "item");
+	if (itemid == -2)self->obj = "exp";
+	if (itemid == -2)self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if (itemid == -2)self->texture = gf3d_texture_load("models/primitives/flatlightblue.png");
+	if (itemid == -1)self->obj = "gold";
+	if (itemid == -1)self->mesh = gf3d_mesh_load("models/coin.obj");
+	if (itemid == -1)self->texture = gf3d_texture_load("models/primitives/flatyellow.png");
 	if(itemid == 0)self->obj = "syringe";
 	if (itemid == 0)self->mesh = gf3d_mesh_load("models/Syringe.obj");
 	if (itemid == 0)self->texture = gf3d_texture_load("models/primitives/flatyellow.png");
@@ -40,6 +46,7 @@ Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Boo
 	self->position = position;
 	if(itemid == 0)self->rotation = gfc_vector3d(GFC_PI_HALFPI / 2, 0, 0); 
 	self->scale = gfc_vector3d(2, 2, 2);
+	if (itemid == -2)self->scale = gfc_vector3d(0.5,0.5,0.5);
 	self->free = item_free; 
 	self->update = item_update;
 	self->_inuse = 1;

@@ -57,6 +57,12 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	self->inventory[8] = 0;
 	self->inventory[9] = 0;
 
+	self->money = 0;
+
+	self->exp = 0;
+
+	self->level = 1;
+
 	self->maxhealth = 100;
 
 	self->canInteract = false;
@@ -186,7 +192,8 @@ void player_think(Entity* self)
 		else if (class == 4)self->attMod = 0.2f;
 	}
 
-	if (gfc_input_command_pressed("cancel"))self->health -= 10;
+	if (gfc_input_command_held("cancel"))self->health -= 1;
+	if (gfc_input_command_held("cancel"))self->money += 10;
 
 	if(self->MoveCD < 1.0)self->MoveCD += 0.01 + moveCDMod;
 	if(self->SpecCD < 1.0)self->SpecCD += 0.01 + specCDMod;
@@ -469,6 +476,12 @@ void player_update(Entity* self)
 		self->maxhealth = self->health;
 	}
 
+	if (self->exp >= 100)
+	{
+		self->exp = 0;
+		self->level += 1;
+	}
+
 	buffedfield = false;
 	self->canInteract = false;
 }
@@ -549,7 +562,7 @@ void player_collide(Entity* self, Entity* collide)
 		isMech = 500;
 		collide->free(collide);
 	}
-	if ((collide->obj == "itemcon") || (collide->obj == "mech") || (collide->obj == "randomShrine") || (collide->obj == "healthShrine"))
+	if ((collide->obj == "itemcon") || (collide->obj == "mech") || (collide->obj == "randomShrine") || (collide->obj == "healthShrine") || (collide->obj == "container"))
 	{
 		self->canInteract = true; 
 	}
@@ -565,6 +578,10 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		collide->collide(collide, self);
 	}
+	if ((collide->obj == "container") && (gfc_input_command_pressed("interact")))
+	{
+		collide->collide(collide, self); 
+	}
 	if ((collide->obj == "healthShrine") && (gfc_input_command_pressed("interact")))
 	{
 		collide->collide(collide, self);
@@ -574,6 +591,18 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		if(self->health < self->maxhealth)
 		self->health += 1;
+	}
+
+	if ((collide->obj == "gold"))
+	{
+		self->money += 1;
+		collide->free(collide);
+	}
+
+	if ((collide->obj == "exp"))
+	{
+		self->exp += 5;
+		collide->free(collide);
 	}
 
 	//slog("player collided with %s", collide->obj);

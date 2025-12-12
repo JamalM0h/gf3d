@@ -66,6 +66,7 @@ void entity_system_init(Uint32 max_ents)
 void entity_draw_shadow(Entity* ent)
 {
 	GFC_Matrix4 modelMat;
+	Texture* shadowtext; 
 	if (!ent)return;
 	if ((ent->obj == "projectile") || (ent->obj == "rocket"))return;
 	if (ent->obj == "world")return;
@@ -75,23 +76,26 @@ void entity_draw_shadow(Entity* ent)
 	if (ent->obj == "speedpad")return;
 	if (ent->obj == "randomShrine")return;
 	if (ent->obj == "healthShrine")return;
+	if (ent->obj == "gold")return;
+	if (ent->obj == "exp")return;
 	gfc_matrix4_from_vectors(
 		modelMat,
 		gfc_vector3d(ent->position.x, ent->position.y, ent->position.z - ent->scale.z),
-		ent->rotation,
+		ent->rotation, 
 		gfc_vector3d(ent->scale.x,ent->scale.y, 0.001));
 	if ((ent->obj == "mech") || (ent->obj == "player") || (ent->obj == "turret") || (ent->obj == "monster")) {
 		gfc_matrix4_from_vectors(
 			modelMat,
-			gfc_vector3d(ent->position.x, ent->position.y, -2),
+			gfc_vector3d(ent->position.x, ent->position.y, -3),
 			ent->rotation,
 			gfc_vector3d(ent->scale.x, ent->scale.y, 0.001));
 	}
+	shadowtext = gf3d_texture_load("models/primitives/flatblack.png");  
 	gf3d_mesh_draw(
 		ent->mesh,
 		modelMat,
 		gfc_color8(0,0,0,120), 
-		ent->texture, 
+		shadowtext, 
 		gfc_vector3d(0,0,0),
 		gfc_color8(0,0,0,0));
 }
@@ -105,13 +109,13 @@ void entity_draw(Entity* ent, GFC_Vector3D lightPos, GFC_Color lightColor)
 		ent->position,
 		ent->rotation,
 		ent->scale);
-	gf3d_mesh_draw(   
-		ent->mesh,  
-		modelMat,  
-		ent->color,  
-		ent->texture,  
-		lightPos,  
-		lightColor); 
+	gf3d_mesh_draw( 
+		ent->mesh,
+		modelMat,
+		ent->color,
+		ent->texture,
+		lightPos,
+		lightColor);
 	entity_draw_shadow(ent);
 	//gf3d_sky_draw(   
 		//ent->mesh,  
@@ -173,6 +177,7 @@ void entity_collision(Entity* self)
 		if (!&entity_system.entity_list[i].bounds)continue;  
 		if (entity_system.entity_list[i].obj == self->obj)continue;
 		if (entity_system.entity_list[i].obj == "world")continue;
+		if (entity_system.entity_list[i].obj == "usedcontainer")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue;
 		if (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket")continue;
 		if ((self->obj == "projectile" || self->obj == "rocket") && entity_system.entity_list[i].obj != "monster")continue;
@@ -187,7 +192,6 @@ void entity_collision(Entity* self)
 			}
 		}
 	}
-	
 }
 
 void entity_system_collision()
@@ -209,9 +213,13 @@ void entity_system_collision()
 		if (entity_system.entity_list[i].obj == "jumpUp")continue;
 		if (entity_system.entity_list[i].obj == "damage")continue;
 		if (entity_system.entity_list[i].obj == "armor")continue;
+		if (entity_system.entity_list[i].obj == "gold")continue;
+		if (entity_system.entity_list[i].obj == "exp")continue;
 		if (entity_system.entity_list[i].obj == "itemcon")continue;
 		if (entity_system.entity_list[i].obj == "randomShrine")continue;
 		if (entity_system.entity_list[i].obj == "healthShrine")continue;
+		if (entity_system.entity_list[i].obj == "container")continue;
+		if (entity_system.entity_list[i].obj == "usedcontainer")continue;
 		if (entity_system.entity_list[i].obj == "mech")continue;
 		if (entity_system.entity_list[i].obj == "jumppad")continue;
 		if (entity_system.entity_list[i].obj == "speedpad")continue;
