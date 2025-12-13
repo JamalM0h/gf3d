@@ -18,7 +18,7 @@ void main()
 	vec3 lightDir = normalize(lightPos.xyz - worldPosition.xyz);
 	vec4 texColor = texture(texSampler, fragTexCoord);
 
-	outColor.xyz = texColor.xyz * max(0.0,dot(-lightDir,inNormal));
+	outColor.xyz = texColor.xyz * max(0.25,dot(-lightDir,inNormal));
 
 	outColor.w = texColor.w * colorMod.w;
 }

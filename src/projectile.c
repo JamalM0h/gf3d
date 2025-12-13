@@ -140,6 +140,11 @@ void projectile_update(Entity* self)
 			projectile_free(self);
 		}
 	}
+
+	if (self->position.z <= -3)
+	{
+		projectile_free(self);
+	}
 }
 
 void projectile_free(Entity* self)

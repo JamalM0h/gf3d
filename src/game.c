@@ -52,10 +52,10 @@ int main(int argc,char *argv[])
     int offset = 0;
     GFC_Vector3D lightPos = {0,0,-1000};
     GFC_Vector3D *cam = gfc_vector3d_new();
-    GFC_Vector2D* healthbarscale = gfc_vector2d_new(), * healthbarbackscale = gfc_vector2d_new(), * armorbarbackscale = gfc_vector2d_new(), * moveCdscale = gfc_vector2d_new(), * specCdscale = gfc_vector2d_new(), *attCdscale = gfc_vector2d_new(), *goldscale = gfc_vector2d_new();
+    GFC_Vector2D* healthbarscale = gfc_vector2d_new(), * healthbarbackscale = gfc_vector2d_new(), * armorbarbackscale = gfc_vector2d_new(), *levelbarbackscale = gfc_vector2d_new(), *levelbarscale = gfc_vector2d_new(), * moveCdscale = gfc_vector2d_new(), * specCdscale = gfc_vector2d_new(), * attCdscale = gfc_vector2d_new(), * goldscale = gfc_vector2d_new(), * interactbarscale = gfc_vector2d_new(), *cdBackscale = gfc_vector2d_new();
     GFC_Matrix4 id;
     Entity* player;
-    Sprite* itembox, * syringe, * boot, * moveCd, * specCd, * healthUp, * jumpUp, * armor, * sword, * healthbar, *healthbarback, *armorbarback, *leftmouse, *attackicon, *movementicon, *shiftkey, *staricon, *ekey;
+    Sprite* itembox, * syringe, * boot, * moveCd, * specCd, * healthUp, * jumpUp, * armor, * sword, * healthbar, *healthbarback, *armorbarback, *levelbar, *leftmouse, *attackicon, *movementicon, *shiftkey, *staricon, *ekey;
     char array[5];
     //initializtion  
     parse_arguments(argc,argv);
@@ -95,6 +95,11 @@ int main(int argc,char *argv[])
     armorbarbackscale->x = 3.0f;
     armorbarbackscale->y = 1;
 
+    levelbarbackscale->x = 7.0f;
+    levelbarbackscale->y = 1;
+
+    levelbarscale->y = 0.75;
+
     attCdscale->x = 2; 
 
     moveCdscale->x = 2;
@@ -103,6 +108,12 @@ int main(int argc,char *argv[])
     
     goldscale->x = 3;
     goldscale->y = 0.75;
+
+    cdBackscale->x = 2;
+    cdBackscale->y = -2;
+
+    interactbarscale->x = 4.7;
+    interactbarscale->y = 0.75;
 
     monster_spawn(gfc_vector3d(28, 0, 0), GFC_COLOR_WHITE);
     monster_spawn(gfc_vector3d(20, 0, 0), GFC_COLOR_WHITE);
@@ -118,8 +129,8 @@ int main(int argc,char *argv[])
     
     container_spawn(gfc_vector3d(100, 100, -3), GFC_COLOR_WHITE, player->position);
 
-    randomShrine_spawn(gfc_vector3d(50, 50, -3), GFC_COLOR_WHITE, player->position);
-    healthShrine_spawn(gfc_vector3d(-50, 50, -3), GFC_COLOR_WHITE);  
+    randomShrine_spawn(gfc_vector3d(50, 50, -4), GFC_COLOR_WHITE, player->position);
+    healthShrine_spawn(gfc_vector3d(-50, 50, -4), GFC_COLOR_WHITE);  
     
     SDL_SetRelativeMouseMode(SDL_TRUE); 
 
@@ -146,6 +157,7 @@ int main(int argc,char *argv[])
     healthbar = gf2d_sprite_load("models/primitives/flatred.png", 64, 64, 0);
     healthbarback = gf2d_sprite_load("models/primitives/flatgrey.png", 64, 64, 0);
     armorbarback = gf2d_sprite_load("models/primitives/darkgrey.png", 64, 64, 0);
+    levelbar = gf2d_sprite_load("models/primitives/flatlightblue.png", 64, 64, 0); 
     leftmouse = gf2d_sprite_load("models/ui/mouse-left-click-icon.png", 64, 64, 0);
     attackicon = gf2d_sprite_load("models/ui/sword.png", 128, 128, 0); 
     movementicon = gf2d_sprite_load("models/ui/movement.png", 128, 128, 0);
@@ -178,10 +190,16 @@ int main(int argc,char *argv[])
 
             if (player->canInteract == true)
             {
-                gf2d_font_draw_line_tag("Press  Enter  Key", FT_H1, GFC_COLOR_GREY, gfc_vector2d(1240, 540));
+                gf2d_sprite_draw(healthbarback, gfc_vector2d(1228, 530), interactbarscale, NULL, NULL, NULL, NULL, NULL, NULL); 
+                gf2d_font_draw_line_tag("Press  Enter  Key", FT_H1, GFC_COLOR_BLACK, gfc_vector2d(1240, 540)); 
             }
 
-            gf2d_sprite_draw(armorbarback, gfc_vector2d(65, 925), armorbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL);   
+            gf2d_sprite_draw(healthbarback, gfc_vector2d(260, 925), levelbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL); 
+
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(65, 925), armorbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL); 
+
+            levelbarscale->x = ((float)player->exp / 100.0f) * 7.0f;
+            gf2d_sprite_draw(levelbar, gfc_vector2d(260, 925), levelbarscale, NULL, NULL, NULL, NULL, NULL, NULL);  
 
             gf2d_sprite_draw(healthbarback, gfc_vector2d(65, 972), healthbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL);
 
@@ -198,22 +216,29 @@ int main(int argc,char *argv[])
 
             snprintf(array, sizeof(array), "%i", player->armor); 
             gf2d_font_draw_line_tag("Armor: ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(71, 933));  
-            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(180, 935));    
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(180, 933));
+
+            snprintf(array, sizeof(array), "%i", player->level);
+            gf2d_font_draw_line_tag("Level: ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(436, 933));
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(545, 933));
 
             attCdscale->y = ((float)player->attSpeed / 1.0f) * -2.0f; 
             if (attCdscale->y < -2.0f)attCdscale->y = -2.0f;
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(1300, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(healthbarback, gfc_vector2d(1300, 951), attCdscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(attackicon, gfc_vector2d(1300, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL);   
             gf2d_sprite_draw(leftmouse, gfc_vector2d(1335, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL);  
 
             moveCdscale->y = ((float)player->MoveCD / 1.0f) * -2.0f; 
-            if (moveCdscale->y < -2.0f)moveCdscale->y = -2.0f; 
+            if (moveCdscale->y < -2.0f)moveCdscale->y = -2.0f;
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(1450, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL); 
             gf2d_sprite_draw(healthbarback, gfc_vector2d(1450, 951), moveCdscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(movementicon, gfc_vector2d(1450, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
             gf2d_sprite_draw(shiftkey, gfc_vector2d(1482, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
             specCdscale->y = ((float)player->SpecCD / 1.0f) * -2.0f; 
             if (specCdscale->y < -2.0f)specCdscale->y = -2.0f;
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(1598, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL);   
             gf2d_sprite_draw(healthbarback, gfc_vector2d(1598, 951), specCdscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(staricon, gfc_vector2d(1598, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(ekey, gfc_vector2d(1630, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 

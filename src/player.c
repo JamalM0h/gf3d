@@ -192,8 +192,9 @@ void player_think(Entity* self)
 		else if (class == 4)self->attMod = 0.2f;
 	}
 
-	if (gfc_input_command_held("cancel"))self->health -= 1;
+	//if (gfc_input_command_held("cancel"))self->health -= 1;
 	if (gfc_input_command_held("cancel"))self->money += 10;
+	if (gfc_input_command_held("cancel"))self->exp += 5;
 
 	if(self->MoveCD < 1.0)self->MoveCD += 0.01 + moveCDMod;
 	if(self->SpecCD < 1.0)self->SpecCD += 0.01 + specCDMod;
@@ -480,6 +481,10 @@ void player_update(Entity* self)
 	{
 		self->exp = 0;
 		self->level += 1;
+		self->maxhealth += 25;
+		self->health += 25;
+		self->damageMod += 0.5f;
+		self->armor += 5;
 	}
 
 	buffedfield = false;
@@ -529,6 +534,7 @@ void player_collide(Entity* self, Entity* collide)
 	}
 	if (collide->obj == "healthUp")
 	{
+		self->maxhealth += 25;
 		self->health += 25;
 		collide->free(collide);
 		self->inventory[4] += 1;
@@ -551,9 +557,10 @@ void player_collide(Entity* self, Entity* collide)
 		collide->free(collide);
 		self->inventory[7] += 1;
 	}
-	if ((collide->obj == "itemcon") && (gfc_input_command_pressed("interact")))
+	if ((collide->obj == "itemcon") && (gfc_input_command_pressed("interact")) && (self->money >= 10))
 	{
 		collide->collide(collide, self); 
+		self->money -= 10;
 	}
 	if ((collide->obj == "mech") && (gfc_input_command_pressed("interact")))
 	{
@@ -574,9 +581,10 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		speedpadmode = 15;
 	}
-	if ((collide->obj == "randomShrine") && (gfc_input_command_pressed("interact")))
+	if ((collide->obj == "randomShrine") && (gfc_input_command_pressed("interact")) && (self->money >= 5))
 	{
 		collide->collide(collide, self);
+		self->money -= 5;
 	}
 	if ((collide->obj == "container") && (gfc_input_command_pressed("interact")))
 	{

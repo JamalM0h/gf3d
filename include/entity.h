@@ -28,6 +28,9 @@ typedef struct Entity_S
 	int			    health;
 	int				maxhealth;
 	int			    armor;
+	int             money;
+	int				level;
+	int				exp;
 	float           jumpForce;
 	float			attSpeed;
 	float			attMod;
