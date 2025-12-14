@@ -68,7 +68,7 @@ void entity_draw_shadow(Entity* ent)
 	GFC_Matrix4 modelMat;
 	Texture* shadowtext; 
 	if (!ent)return;
-	if ((ent->obj == "projectile") || (ent->obj == "rocket"))return;
+	if ((ent->obj == "projectile") || (ent->obj == "rocket") || (ent->obj == "enemyprojectile") || (ent->obj == "enemyrocket"))return;
 	if (ent->obj == "world")return;
 	if (ent->obj == "explo")return;
 	if (ent->obj == "itemcon")return;
@@ -182,6 +182,7 @@ void entity_collision(Entity* self)
 		if (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket")continue;
 		if ((self->obj == "projectile" || self->obj == "rocket") && entity_system.entity_list[i].obj != "monster")continue;
 		if (self->obj == "turret" && entity_system.entity_list[i].obj != "monster")continue;
+		if ((self->obj == "enemyprojectile") || (self->obj == "enemyrocket") || (self->obj == "enemyexplo") && entity_system.entity_list[i].obj != "player")continue;
 		if (self->obj == "monster" && (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket"))continue;
 		if (self->obj == "monster" && entity_system.entity_list[i].obj == "tele")continue;
 		//slog("%s checking against %s", self->obj, entity_system.entity_list[i].obj); 

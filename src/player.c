@@ -143,11 +143,11 @@ void player_think(Entity* self)
 		self->attSpeed = 0;
 		if (class == 0 || (class == 3 && isMech == 0))
 		{
-			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 		}
 		else if (class == 1)
 		{
-			create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, false, self->damageMod);
+			create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.25), GFC_COLOR_WHITE, false, self->damageMod);
 		}
 		else if (class == 2)
 		{
@@ -156,16 +156,16 @@ void player_think(Entity* self)
 		else if (class == 3 && isMech > 0)
 		{
 			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
-			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
-			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 		}
 		else if (class == 4)
 		{
 			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
-			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
-			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
-			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.2), camforward->y + (camright->y * 0.2), (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
-			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.2), camforward->y - (camright->y * 0.2), (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.2), camforward->y + (camright->y * 0.2), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.2), camforward->y - (camright->y * 0.2), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 		}
 	}
 
@@ -507,6 +507,15 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		collide->collide(collide, self); 
 	}
+	else if (collide->obj == "monster")
+	{ 
+		GFC_Vector2D* playermovedir = gfc_vector2d_new();
+		*playermovedir = gfc_vector2d(self->position.x - collide->position.x, self->position.y - collide->position.y);
+		gfc_vector2d_normalize(playermovedir);
+		self->position.x += (playermovedir->x * 3.0f); 
+		self->position.y += (playermovedir->y * 3.0f);
+		self->health -= 2;
+	}
 	if (collide->obj == "bufffield")buffedfield = true;
 	if (collide->obj == "syringe")
 	{
@@ -611,6 +620,15 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		self->exp += 5;
 		collide->free(collide);
+	}
+	if (collide->obj == "enemyprojectile" || collide->obj == "enemyrocket")
+	{
+		self->health -= 5;
+	}
+	if (collide->obj == "enemyexplo")
+	{
+		self->health -= 1;
+		self->position.z += 5;
 	}
 
 	//slog("player collided with %s", collide->obj);

@@ -45,7 +45,7 @@ void turret_think(Entity* self)
 
 	if (self->attSpeed < 1)
 	{
-		self->attSpeed += 0.2;
+		self->attSpeed += 0.1;
 	}
 }
 void turret_update(Entity* self)
@@ -84,12 +84,12 @@ void turret_collide(Entity* self, Entity* collide)
 {
 	GFC_Vector3D *dir = gfc_vector3d_new(); 
 	if (!self)return;
-	if (collide->obj == "monster" && self->attSpeed >= 1)
+	if ((collide->obj == "monster") && self->attSpeed >= 1)
 	{
 		self->attSpeed = 0; 
 		dir->x = (self->position.x - collide->position.x) * -1;
 		dir->y = (self->position.y - collide->position.y) * -1;
-		dir->z = 0;
+		dir->z = (self->position.z - collide->position.z) * -1;
 		gfc_vector3d_normalize(dir);
 		create_projectile(self->position, *dir , GFC_COLOR_WHITE, self->damageMod);
 		//slog("fired");

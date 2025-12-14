@@ -27,6 +27,8 @@ Entity* monster_spawn(GFC_Vector3D position, GFC_Color color)
 
 	GFC_Box hitbox = gfc_box(self->position.x - 2.5, self->position.y - 2.5, self->position.z - 2.5, 5, 5, 5); 
 
+	self->position.z = 10;
+
 	self->bounds = hitbox;
 
 	return self;

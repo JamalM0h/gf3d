@@ -115,10 +115,11 @@ int main(int argc,char *argv[])
     interactbarscale->x = 4.7;
     interactbarscale->y = 0.75;
 
-    monster_spawn(gfc_vector3d(28, 0, 0), GFC_COLOR_WHITE);
-    monster_spawn(gfc_vector3d(20, 0, 0), GFC_COLOR_WHITE);
+    crawler_spawn(gfc_vector3d(28, 0, 0), GFC_COLOR_WHITE, player);
+    ranger_spawn(gfc_vector3d(50, 0, 0), GFC_COLOR_WHITE, player); 
+    flyer_spawn(gfc_vector3d(50, 0, 0), GFC_COLOR_WHITE, player); 
 
-    item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,0); 
+    item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,0);  
     item_container_spawn(gfc_vector3d(0, -40, 0), GFC_COLOR_WHITE, player->position,1);
     item_container_spawn(gfc_vector3d(0, -60, 0), GFC_COLOR_WHITE, player->position,2);
     item_container_spawn(gfc_vector3d(0, -80, 0), GFC_COLOR_WHITE, player->position,3);
