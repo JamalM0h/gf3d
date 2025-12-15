@@ -38,7 +38,7 @@ Entity* item_container_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3
 
 	self->bounds = hitbox;
 
-	item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, gfc_vector3d(0,0,0), true, self->rotation.z);
+	item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, gfc_vector3d(0,0,0), true, self->rotation.z, NULL);
 
 	return self;
 }
@@ -79,5 +79,5 @@ void itemcon_collide(Entity* self, Entity* collide)
 	dir->y = (self->position.y - collide->position.y) * -1; 
 	dir->z = 0;  
 	gfc_vector3d_normalize(dir);
-	item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir ,false, self->rotation.z); 
+	item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir ,false, self->rotation.z, NULL); 
 }

@@ -31,6 +31,7 @@ typedef struct Entity_S
 	int             money;
 	int				level;
 	int				exp;
+	int				itemidnum;
 	float           jumpForce;
 	float			attSpeed;
 	float			attMod;
@@ -40,6 +41,7 @@ typedef struct Entity_S
 	float			SpecCD;
 	Bool			canInteract;
 	Bool			isArc;
+	Bool            goingUp;
 	int             inventory[10];
 	Bool			temp;
 	GFC_Vector3D    *camera;
@@ -66,6 +68,10 @@ void entity_system_collision();
 void entity_think_all();
 
 void entity_update_all();
+
+int enemycount();
+
+void clearstage();
 
 
 

@@ -67,5 +67,5 @@ void randomShrine_collide(Entity* self, Entity* collide)
 	dir->z = 0;
 	gfc_vector3d_normalize(dir);
 	randomitemid = gfc_random_int(8); 
-	item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, randomitemid); 
+	item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, randomitemid, NULL); 
 }

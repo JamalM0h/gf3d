@@ -89,7 +89,7 @@ void turret_collide(Entity* self, Entity* collide)
 		self->attSpeed = 0; 
 		dir->x = (self->position.x - collide->position.x) * -1;
 		dir->y = (self->position.y - collide->position.y) * -1;
-		dir->z = (self->position.z - collide->position.z) * -1;
+		dir->z = (self->position.z - collide->position.z) * -5;
 		gfc_vector3d_normalize(dir);
 		create_projectile(self->position, *dir , GFC_COLOR_WHITE, self->damageMod);
 		//slog("fired");

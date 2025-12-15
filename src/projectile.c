@@ -89,7 +89,7 @@ Entity* create_enemy_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color c
 	self->think = projectile_think;
 	self->update = projectile_update;
 	self->free = projectile_free;
-	self->collide = projectile_collide;
+	self->collide = enemyprojectile_collide; 
 	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 1.5, 1.5, 1.5);
 	self->bounds = hitbox;
 
@@ -99,7 +99,7 @@ Entity* create_enemy_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color c
 
 	self->isArc = arc;
 
-	if (self->isArc == true)self->dirtomove.z = 3;
+	if (self->isArc == true)self->dirtomove.z += 3;
 
 	self->ttl = 0;
 
@@ -123,6 +123,10 @@ Entity* create_explosion(GFC_Vector3D position, GFC_Color color, Bool friendly)
 	self->think = explosion_think;
 	self->update = explosion_update;
 	self->free = projectile_free;
+
+	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 2, 2, 2);
+
+	self->bounds = hitbox;
 
 	self->ttl = 0;
 
@@ -245,8 +249,10 @@ void projectile_update(Entity* self)
 void projectile_free(Entity* self)
 {
 	if (!self)return;
-	if(self->obj == "rocket")create_explosion(self->position, GFC_COLOR_WHITE, true);
-	if (self->obj == "enemyrocket")create_explosion(self->position, GFC_COLOR_WHITE, false); 
+	if (self->obj == "rocket")create_explosion(self->position, GFC_COLOR_WHITE, true);
+	if (self->obj == "enemyrocket") {
+		create_explosion(self->position, GFC_COLOR_WHITE, false); 
+	}
 	if (self->mesh)
 	{
 		gf3d_mesh_free(self->mesh);
@@ -291,7 +297,12 @@ void explosion_update(Entity* self)
 	self->scale.y += 0.25;
 	self->scale.z += 0.25;
 
+	self->bounds.x = self->position.x - 1;
+	self->bounds.y = self->position.y - 1;
+	self->bounds.z = self->position.z - 1;
+
 	self->ttl += 1;
+	if (self->obj == "enemyexplo")self->ttl += 2;
 
 	if (self->ttl >= 40)
 	{

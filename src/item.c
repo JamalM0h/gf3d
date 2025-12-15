@@ -6,7 +6,9 @@ void item_update(Entity* self);
 void item_free(Entity* self);
 void item_collide(Entity* self, Entity* collide);
 
-Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Bool isDisplay, int itemid)
+Entity* attracttoplayer;
+
+Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Bool isDisplay, int itemid, Entity *attractto)
 {
 	Entity* self;
 	self = entity_new();
@@ -18,7 +20,7 @@ Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Boo
 	if (itemid == -1)self->obj = "gold";
 	if (itemid == -1)self->mesh = gf3d_mesh_load("models/coin.obj");
 	if (itemid == -1)self->texture = gf3d_texture_load("models/primitives/flatyellow.png");
-	if(itemid == 0)self->obj = "syringe";
+	if (itemid == 0)self->obj = "syringe";
 	if (itemid == 0)self->mesh = gf3d_mesh_load("models/Syringe.obj");
 	if (itemid == 0)self->texture = gf3d_texture_load("models/primitives/flatyellow.png");
 	if (itemid == 1)self->obj = "boots";
@@ -47,9 +49,14 @@ Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Boo
 	if(itemid == 0)self->rotation = gfc_vector3d(GFC_PI_HALFPI / 2, 0, 0); 
 	self->scale = gfc_vector3d(2, 2, 2);
 	if (itemid == -2)self->scale = gfc_vector3d(0.5,0.5,0.5);
+	if (itemid == -1)self->scale = gfc_vector3d(2.5, 2.5, 2.5);
 	self->free = item_free; 
 	self->update = item_update;
 	self->_inuse = 1;
+
+	self->itemidnum = itemid;
+
+	if (itemid == -1 || itemid == -2)attracttoplayer = attractto;
 
 	if (isDisplay == false) {
 
@@ -59,7 +66,8 @@ Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Boo
 		self->dirtomove = dir; 
 		self->dirtomove.z = 3;
 	}
-	else self->obj = NULL;
+
+	else self->obj = "isDisplay";
 
 	return self;
 }
@@ -80,6 +88,19 @@ void item_update(Entity* self)
 		self->position.y += self->dirtomove.y;
 		self->position.z += self->dirtomove.z;
 		self->dirtomove.z -= 0.30; 
+	}
+
+	if ((self->itemidnum == -1 || self->itemidnum == -2) && self->position.z <= 0)
+	{
+		GFC_Vector3D* dir = gfc_vector3d_new();
+		float movemag = 0.8;
+
+		dir->x = (self->position.x - attracttoplayer->position.x) * -1;
+		dir->y = (self->position.y - attracttoplayer->position.y) * -1;
+		dir->z = 0;
+		gfc_vector3d_normalize(dir);
+		self->position.x += dir->x * movemag;
+		self->position.y += dir->y * movemag;
 	}
 
 	if (self->position.z <= 0)self->position.z = 0;

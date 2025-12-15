@@ -7,7 +7,7 @@ void container_update(Entity* self);
 void container_free(Entity* self);
 void container_collide(Entity* self, Entity* collide);
 
-Entity* container_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D playpos)
+Entity* container_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
 	int i;
@@ -67,12 +67,12 @@ void container_collide(Entity* self, Entity* collide)
 		dir->y = gfc_random_int(100) - 50;
 		dir->z = 0;
 		gfc_vector3d_normalize(dir);
-		item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -1);
+		item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -1, collide);
 		dir->x = gfc_random_int(100) - 50;
 		dir->y = gfc_random_int(100) - 50;
 		dir->z = 0;
 		gfc_vector3d_normalize(dir);
-		item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -2);
+		item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -2, collide);
 	}
 
 	self->obj = "usedcontainer";   

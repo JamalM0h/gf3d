@@ -3,6 +3,6 @@
 
 #include "entity.h"
 
-Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Bool isDisplay, int itemid);
+Entity* item_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D dir, Bool isDisplay, int itemid, Entity *attractto);
 
 #endif

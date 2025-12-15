@@ -69,12 +69,12 @@ void crawler_update(Entity* self)
 			dir->y = gfc_random_int(100) - 50;
 			dir->z = 0;
 			gfc_vector3d_normalize(dir);
-			item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -1);
+			item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -1, crawlerenemy);
 			dir->x = gfc_random_int(100) - 50;
 			dir->y = gfc_random_int(100) - 50;
 			dir->z = 0;
 			gfc_vector3d_normalize(dir);
-			item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -2);
+			item_spawn(gfc_vector3d(self->position.x, self->position.y, self->position.z + 1.25), GFC_COLOR_WHITE, *dir, false, -2, crawlerenemy);
 		}
 		crawler_free(self); 
 	} 
@@ -99,11 +99,11 @@ void crawler_collide(Entity* self, Entity* collide)
 	if (!self)return;
 	if ((collide->obj == "projectile") || (collide->obj == "rocket"))
 	{
-		self->position.x += (collide->dirtomove.x * 5); 
-		self->position.y += (collide->dirtomove.y * 5); 
+		self->position.x += (collide->dirtomove.x * 4); 
+		self->position.y += (collide->dirtomove.y * 4); 
 		if (collide->obj == "rocket") { 
-			self->position.x += (collide->dirtomove.x * 5);  
-			self->position.y += (collide->dirtomove.y * 5);  
+			self->position.x += (collide->dirtomove.x * 4);  
+			self->position.y += (collide->dirtomove.y * 4);  
 			self->health -= 1;
 		}
 		self->health -= 1;
@@ -113,8 +113,8 @@ void crawler_collide(Entity* self, Entity* collide)
 		GFC_Vector2D* monstermovedir = gfc_vector2d_new();
 		*monstermovedir = gfc_vector2d(self->position.x - collide->position.x, self->position.y - collide->position.y);
 		gfc_vector2d_normalize(monstermovedir);
-		self->position.x += (monstermovedir->x * 5.0f) * collide->damageMod;
-		self->position.y += (monstermovedir->y * 5.0f) * collide->damageMod;
+		self->position.x += (monstermovedir->x * 5.0f);
+		self->position.y += (monstermovedir->y * 5.0f);
 
 		self->health -= 1;
 	}

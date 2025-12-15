@@ -49,12 +49,14 @@ int main(int argc,char *argv[])
     Mesh *mesh;
     Texture *texture;
     float theta = 0;
-    int offset = 0;
+    int offset = 0, i = 0, stage = 0; 
+    Bool *ismonspawning = true;
+    float monstimer = 0;
     GFC_Vector3D lightPos = {0,0,-1000};
     GFC_Vector3D *cam = gfc_vector3d_new();
     GFC_Vector2D* healthbarscale = gfc_vector2d_new(), * healthbarbackscale = gfc_vector2d_new(), * armorbarbackscale = gfc_vector2d_new(), *levelbarbackscale = gfc_vector2d_new(), *levelbarscale = gfc_vector2d_new(), * moveCdscale = gfc_vector2d_new(), * specCdscale = gfc_vector2d_new(), * attCdscale = gfc_vector2d_new(), * goldscale = gfc_vector2d_new(), * interactbarscale = gfc_vector2d_new(), *cdBackscale = gfc_vector2d_new();
     GFC_Matrix4 id;
-    Entity* player;
+    Entity* player, *teleporter, *worldobj;
     Sprite* itembox, * syringe, * boot, * moveCd, * specCd, * healthUp, * jumpUp, * armor, * sword, * healthbar, *healthbarback, *armorbarback, *levelbar, *leftmouse, *attackicon, *movementicon, *shiftkey, *staricon, *ekey;
     char array[5];
     //initializtion  
@@ -76,13 +78,7 @@ int main(int argc,char *argv[])
     srand(SDL_GetTicks());
     slog_sync();
 
-    world_spawn(gfc_vector3d(0, 0, -4), GFC_COLOR_WHITE);
-
-    jumppad_spawn(gfc_vector3d(25, 25, -3), GFC_COLOR_WHITE);
-    speedpad_spawn(gfc_vector3d(10, 80, -3), GFC_COLOR_WHITE);
-    speedpad_spawn(gfc_vector3d(10, 90, -3), GFC_COLOR_WHITE);
-    speedpad_spawn(gfc_vector3d(10, 100, -3), GFC_COLOR_WHITE);
-    speedpad_spawn(gfc_vector3d(10, 110, -3), GFC_COLOR_WHITE);
+    worldobj = world_spawn(gfc_vector3d(0, 0, -4), GFC_COLOR_WHITE); 
 
     player = player_init(gfc_vector3d(8, 0, 0), GFC_COLOR_WHITE);  
     player->camera = cam;
@@ -115,23 +111,39 @@ int main(int argc,char *argv[])
     interactbarscale->x = 4.7;
     interactbarscale->y = 0.75;
 
-    crawler_spawn(gfc_vector3d(28, 0, 0), GFC_COLOR_WHITE, player);
-    ranger_spawn(gfc_vector3d(50, 0, 0), GFC_COLOR_WHITE, player); 
-    flyer_spawn(gfc_vector3d(50, 0, 0), GFC_COLOR_WHITE, player); 
+    teleporter = teleporter_spawn(gfc_vector3d(-50, -75, -1), GFC_COLOR_WHITE); 
 
-    item_container_spawn(gfc_vector3d(0, -20, 0), GFC_COLOR_WHITE, player->position,0);  
-    item_container_spawn(gfc_vector3d(0, -40, 0), GFC_COLOR_WHITE, player->position,1);
-    item_container_spawn(gfc_vector3d(0, -60, 0), GFC_COLOR_WHITE, player->position,2);
-    item_container_spawn(gfc_vector3d(0, -80, 0), GFC_COLOR_WHITE, player->position,3);
-    item_container_spawn(gfc_vector3d(0, -100, 0), GFC_COLOR_WHITE, player->position,4);
-    item_container_spawn(gfc_vector3d(-50, -20, 0), GFC_COLOR_WHITE, player->position,5);
-    item_container_spawn(gfc_vector3d(-50, -40, 0), GFC_COLOR_WHITE, player->position,6);
-    item_container_spawn(gfc_vector3d(-50, -60, 0), GFC_COLOR_WHITE, player->position,7); 
-    
-    container_spawn(gfc_vector3d(100, 100, -3), GFC_COLOR_WHITE, player->position);
+    GFC_Vector3D randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, -1); 
+    teleporter->position = randompos; 
 
-    randomShrine_spawn(gfc_vector3d(50, 50, -4), GFC_COLOR_WHITE, player->position);
-    healthShrine_spawn(gfc_vector3d(-50, 50, -4), GFC_COLOR_WHITE);  
+    for (i = 0; i < 15; i++)
+    {
+        int thingtospawn = gfc_random_int(100);
+        randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, 0);
+        if (thingtospawn <= 30)
+        {
+            item_container_spawn(randompos, GFC_COLOR_WHITE, player->position, gfc_random_int(8));
+        }
+        else if (thingtospawn > 30 && thingtospawn <= 50)
+        {
+            randompos.z = -3;
+            randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
+        }
+        else if (thingtospawn > 50 && thingtospawn <= 60)
+        {
+            randompos.z = -3;
+            healthShrine_spawn(randompos, GFC_COLOR_WHITE);
+        }
+        else if (thingtospawn > 60 && thingtospawn <= 80)
+        {
+            randompos.z = -3;
+            container_spawn(randompos, GFC_COLOR_WHITE);
+        }
+        else if (thingtospawn > 80)
+        {
+            //randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
+        }
+    }
     
     SDL_SetRelativeMouseMode(SDL_TRUE); 
 
@@ -309,6 +321,80 @@ int main(int argc,char *argv[])
             gf2d_sprite_draw(healthbarback, gfc_vector2d(238, 30), goldscale, NULL, NULL, NULL, NULL, NULL, NULL);  
             gf2d_font_draw_line_tag("Gold: ", FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(250, 40));  
             gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(345, 40)); 
+
+            if(teleporter->obj == "teleporter")monstimer += 0.005;
+            if (monstimer >= 1 && teleporter->obj == "teleporter")
+            {
+                int whichmonster = gfc_random_int(5);  
+                //int whichmonster = 4;  
+                GFC_Vector3D monspos = gfc_vector3d(gfc_random_int(300) - 150, gfc_random_int(300) - 150, 0);
+                if (whichmonster == 0)
+                {
+                    crawler_spawn(monspos, GFC_COLOR_WHITE, player); 
+                }
+                else if (whichmonster == 1)
+                {
+                    ranger_spawn(monspos, GFC_COLOR_WHITE, player); 
+                }
+                else if (whichmonster == 2)
+                {
+                    flyer_spawn(monspos, GFC_COLOR_WHITE, player); 
+                }
+                else if (whichmonster == 3)
+                {
+                    crusher_spawn(monspos, GFC_COLOR_WHITE, player); 
+                }
+                else if (whichmonster == 4)
+                {
+                    rocketbot_spawn(monspos, GFC_COLOR_WHITE, player); 
+                }
+                monstimer = 0; 
+            }
+
+            if (teleporter->obj == "teleporterdone")
+            {
+                GFC_Vector3D randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, -1); 
+                teleporter->position = randompos;
+                teleporter->obj = "teleporter";
+                if (stage < 3)stage++;
+                else stage = 0;
+                if (stage = 0) {
+                    texture = gf3d_texture_load("models/alienCave.png"); 
+                    worldobj->texture = gf3d_texture_load("models/black-stone.jpg"); 
+                }
+                if (stage = 1) {
+                    texture = gf3d_texture_load("models/spacesky.png");
+                    worldobj->texture = gf3d_texture_load("models/green-grass.png");
+                }
+                for (i = 0; i < 15; i++)
+                {
+                    int thingtospawn = gfc_random_int(100); 
+                    randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, 0); 
+                    if (thingtospawn <= 30)
+                    {
+                        item_container_spawn(randompos, GFC_COLOR_WHITE, player->position, gfc_random_int(8));
+                    }
+                    else if (thingtospawn > 30 && thingtospawn <= 50)
+                    {
+                        randompos.z = -3;  
+                        randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
+                    }
+                    else if (thingtospawn > 50 && thingtospawn <= 60)
+                    {
+                        randompos.z = -3; 
+                        healthShrine_spawn(randompos, GFC_COLOR_WHITE); 
+                    }
+                    else if (thingtospawn > 60 && thingtospawn <= 80)
+                    {
+                        randompos.z = -3;
+                        container_spawn(randompos, GFC_COLOR_WHITE);
+                    }
+                    else if (thingtospawn > 80)
+                    {
+                        //randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
+                    }
+                }
+            }
 
         gf3d_vgraphics_render_end();
         if (gfc_input_command_down("exit"))_done = 1; // exit condition

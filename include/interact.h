@@ -9,7 +9,8 @@ Entity* jumppad_spawn(GFC_Vector3D position, GFC_Color color);
 Entity* speedpad_spawn(GFC_Vector3D position, GFC_Color color);
 Entity* randomShrine_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D playpos);
 Entity* healthShrine_spawn(GFC_Vector3D position, GFC_Color color);
-Entity* container_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D playpos);
+Entity* teleporter_spawn(GFC_Vector3D position, GFC_Color color);
+Entity* container_spawn(GFC_Vector3D position, GFC_Color color);
 
 
 #endif

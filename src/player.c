@@ -578,7 +578,7 @@ void player_collide(Entity* self, Entity* collide)
 		isMech = 500;
 		collide->free(collide);
 	}
-	if ((collide->obj == "itemcon") || (collide->obj == "mech") || (collide->obj == "randomShrine") || (collide->obj == "healthShrine") || (collide->obj == "container"))
+	if ((collide->obj == "itemcon") || (collide->obj == "mech") || (collide->obj == "randomShrine") || (collide->obj == "healthShrine") || (collide->obj == "container") || (collide->obj == "teleporter") || (collide->obj == "teleporteractivated"))
 	{
 		self->canInteract = true; 
 	}
@@ -603,7 +603,14 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		collide->collide(collide, self);
 	}
-
+	if ((collide->obj == "teleporter") && (gfc_input_command_pressed("interact")))
+	{
+		collide->collide(collide, self);
+	}
+	if ((collide->obj == "teleporteractivated") && (gfc_input_command_pressed("interact")))
+	{
+		collide->collide(collide, self);
+	}
 	if ((collide->obj == "healthfield"))
 	{
 		if(self->health < self->maxhealth)
@@ -628,7 +635,12 @@ void player_collide(Entity* self, Entity* collide)
 	if (collide->obj == "enemyexplo")
 	{
 		self->health -= 1;
-		self->position.z += 5;
+		//self->position.z += 5;
+		slog("hit by enemy explosion");
+	}
+	if (collide->obj == "shockwave")
+	{
+		self->health -= 1;
 	}
 
 	//slog("player collided with %s", collide->obj);

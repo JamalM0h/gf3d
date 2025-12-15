@@ -68,7 +68,7 @@ void entity_draw_shadow(Entity* ent)
 	GFC_Matrix4 modelMat;
 	Texture* shadowtext; 
 	if (!ent)return;
-	if ((ent->obj == "projectile") || (ent->obj == "rocket") || (ent->obj == "enemyprojectile") || (ent->obj == "enemyrocket"))return;
+	if ((ent->obj == "projectile") || (ent->obj == "rocket") || (ent->obj == "enemyprojectile") || (ent->obj == "enemyrocket") || (ent->obj == "enemyexplo") || (ent->obj == "enemyrocket"))return;
 	if (ent->obj == "world")return;
 	if (ent->obj == "explo")return;
 	if (ent->obj == "itemcon")return;
@@ -182,7 +182,7 @@ void entity_collision(Entity* self)
 		if (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket")continue;
 		if ((self->obj == "projectile" || self->obj == "rocket") && entity_system.entity_list[i].obj != "monster")continue;
 		if (self->obj == "turret" && entity_system.entity_list[i].obj != "monster")continue;
-		if ((self->obj == "enemyprojectile") || (self->obj == "enemyrocket") || (self->obj == "enemyexplo") && entity_system.entity_list[i].obj != "player")continue;
+		if ((self->obj == "enemyprojectile" || self->obj == "enemyrocket" || self->obj == "enemyexplo" || self->obj == "shockwave") && entity_system.entity_list[i].obj != "player")continue;
 		if (self->obj == "monster" && (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket"))continue;
 		if (self->obj == "monster" && entity_system.entity_list[i].obj == "tele")continue;
 		//slog("%s checking against %s", self->obj, entity_system.entity_list[i].obj); 
@@ -206,6 +206,7 @@ void entity_system_collision()
 		if (entity_system.entity_list[i].obj == "world")continue;
 		if (entity_system.entity_list[i].obj == "monster")continue;
 		if (entity_system.entity_list[i].obj == "bufffield")continue;
+		if (entity_system.entity_list[i].obj == "shockwave")continue;
 		if (entity_system.entity_list[i].obj == "syringe")continue;
 		if (entity_system.entity_list[i].obj == "boots")continue;
 		if (entity_system.entity_list[i].obj == "movCd")continue;
@@ -221,9 +222,12 @@ void entity_system_collision()
 		if (entity_system.entity_list[i].obj == "healthShrine")continue;
 		if (entity_system.entity_list[i].obj == "container")continue;
 		if (entity_system.entity_list[i].obj == "usedcontainer")continue;
+		if (entity_system.entity_list[i].obj == "teleporter")continue;
+		if (entity_system.entity_list[i].obj == "teleporteractivated")continue;
 		if (entity_system.entity_list[i].obj == "mech")continue;
 		if (entity_system.entity_list[i].obj == "jumppad")continue;
 		if (entity_system.entity_list[i].obj == "speedpad")continue;
+		if (entity_system.entity_list[i].obj == "isDisplay")continue;
 		//slog("obj name %s", entity_system.entity_list[i].obj); 
 		entity_collision(&entity_system.entity_list[i]); 
 	}
@@ -235,4 +239,29 @@ void entity_free(Entity* self)
 	gf3d_mesh_free(self->mesh);
 	gf3d_texture_free(self->texture);
 	memset(self, 0, sizeof(Entity));
+}
+
+int enemycount()
+{
+	int i, j = 0; 
+	for (i = 0; i < entity_system.entity_max; i++)
+	{
+		if (entity_system.entity_list[i].obj == "monster")
+		{
+			j++;
+		}
+	}
+	return j;
+}
+
+void clearstage()
+{
+	int i;
+	for (i = 0; i < entity_system.entity_max; i++) 
+	{
+		if ((entity_system.entity_list[i].obj != NULL) && (entity_system.entity_list[i].obj != "player") && (entity_system.entity_list[i].obj != "world") && (entity_system.entity_list[i].obj != "teleporteractivated"))
+		{
+			entity_system.entity_list[i].free(&entity_system.entity_list[i]);  
+		}
+	}
 }
