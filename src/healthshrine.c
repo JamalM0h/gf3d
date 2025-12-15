@@ -7,6 +7,8 @@ void healthShrine_update(Entity* self);
 void healthShrine_free(Entity* self);
 void healthShrine_collide(Entity* self, Entity* collide);
 
+Mesh* healthShrinemesh = NULL;
+
 Entity* healthShrine_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
@@ -15,7 +17,8 @@ Entity* healthShrine_spawn(GFC_Vector3D position, GFC_Color color)
 	if (!self)return;
 	gfc_line_cpy(self->name, "healthShrine");
 	self->obj = "healthShrine";
-	self->mesh = gf3d_mesh_load("models/healthshrine.obj");
+	if (healthShrinemesh == NULL)healthShrinemesh = gf3d_mesh_load("models/healthshrine.obj");  
+	self->mesh = healthShrinemesh; 
 	self->texture = gf3d_texture_load("models/primitives/flatgrey.png");
 	self->color = color;
 	self->position = position;

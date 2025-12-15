@@ -10,6 +10,9 @@ void enemyprojectile_collide(Entity* self, Entity* collide);
 
 void explosion_think(Entity* self);
 void explosion_update(Entity* self);
+void explosion_collide(Entity* self, Entity* collide);
+
+Mesh* projmes = NULL;  
 
 Entity* create_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color, float damageMod)
 {
@@ -18,7 +21,9 @@ Entity* create_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color col
 	if (!self)return;
 	gfc_line_cpy(self->name, "projectile");
 	self->obj = "projectile";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj"); 
+	//self->mesh = gf3d_mesh_load("models/primitives/sphere.obj"); 
+	if (projmes == NULL)projmes = gf3d_mesh_load("models/primitives/sphere.obj"); 
+    self->mesh = projmes;  
 	self->texture = gf3d_texture_load("models/primitives/flatwhite.png"); 
 	self->color = color;
 	self->position = position;
@@ -47,7 +52,8 @@ Entity* create_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color, 
 	if (!self)return;
 	gfc_line_cpy(self->name, "rocket");
 	self->obj = "rocket";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if (projmes == NULL)projmes = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->mesh = projmes;
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position; 
@@ -80,7 +86,8 @@ Entity* create_enemy_rocket(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color c
 	if (!self)return;
 	gfc_line_cpy(self->name, "enemyrocket");
 	self->obj = "enemyrocket";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if (projmes == NULL)projmes = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->mesh = projmes;
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position;
@@ -114,7 +121,8 @@ Entity* create_explosion(GFC_Vector3D position, GFC_Color color, Bool friendly)
 	gfc_line_cpy(self->name, "explo");
 	if (friendly == true)self->obj = "explo";
 	else self->obj = "enemyexplo";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if (projmes == NULL)projmes = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->mesh = projmes;
 	self->texture = gf3d_texture_load("models/primitives/flatorange.png");
 	self->color = color;
 	self->position = position;
@@ -124,7 +132,9 @@ Entity* create_explosion(GFC_Vector3D position, GFC_Color color, Bool friendly)
 	self->update = explosion_update;
 	self->free = projectile_free;
 
-	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 2, 2, 2);
+	if (self->obj == "explo")self->collide = explosion_collide; 
+
+	GFC_Box hitbox = gfc_box(self->position.x - 1.5, self->position.y - 1.5, self->position.z - 1.5, 3, 3, 3);
 
 	self->bounds = hitbox;
 
@@ -140,7 +150,8 @@ create_enemy_projectile(GFC_Vector3D position, GFC_Vector3D dir, GFC_Color color
 	if (!self)return;
 	gfc_line_cpy(self->name, "enemyprojectile");
 	self->obj = "enemyprojectile";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if(projmes == NULL)projmes = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->mesh = projmes;
 	self->texture = gf3d_texture_load("models/primitives/flatwhite.png");
 	self->color = color;
 	self->position = position;
@@ -267,12 +278,21 @@ void projectile_free(Entity* self)
 void projectile_collide(Entity* self, Entity* collide)
 {
 	if (!self)return;
-	if (collide->obj == "monster" || collide->obj == "crawler")
+	if (collide->obj == "monster")
 	{
-		collide->collide(collide, self); 
+		collide->collide(collide, self);
 	}
 	projectile_free(self);
 } 
+
+void explosion_collide(Entity* self, Entity* collide)
+{
+	if (!self)return;
+	if (collide->obj == "monster")
+	{
+		collide->collide(collide, self);
+	}
+}
 
 void enemyprojectile_collide(Entity* self, Entity* collide)
 {
@@ -297,9 +317,9 @@ void explosion_update(Entity* self)
 	self->scale.y += 0.25;
 	self->scale.z += 0.25;
 
-	self->bounds.x = self->position.x - 1;
-	self->bounds.y = self->position.y - 1;
-	self->bounds.z = self->position.z - 1;
+	self->bounds.x = self->position.x - 1.5;
+	self->bounds.y = self->position.y - 1.5;
+	self->bounds.z = self->position.z - 1.5;
 
 	self->ttl += 1;
 	if (self->obj == "enemyexplo")self->ttl += 2;

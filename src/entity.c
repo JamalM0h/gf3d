@@ -180,7 +180,7 @@ void entity_collision(Entity* self)
 		if (entity_system.entity_list[i].obj == "usedcontainer")continue;
 		if (entity_system.entity_list[i].obj == NULL)continue;
 		if (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket")continue;
-		if ((self->obj == "projectile" || self->obj == "rocket") && entity_system.entity_list[i].obj != "monster")continue;
+		if (((self->obj == "projectile") || (self->obj == "rocket") || (self->obj == "explo")) && entity_system.entity_list[i].obj != "monster")continue;
 		if (self->obj == "turret" && entity_system.entity_list[i].obj != "monster")continue;
 		if ((self->obj == "enemyprojectile" || self->obj == "enemyrocket" || self->obj == "enemyexplo" || self->obj == "shockwave") && entity_system.entity_list[i].obj != "player")continue;
 		if (self->obj == "monster" && (entity_system.entity_list[i].obj == "projectile" || entity_system.entity_list[i].obj == "rocket"))continue;

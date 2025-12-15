@@ -10,6 +10,8 @@ void rocketbot_collide(Entity* self, Entity* collide);
 
 Entity* rocketbotenemy;
 
+Mesh* rocketbotmesh = NULL;
+
 Entity* rocketbot_spawn(GFC_Vector3D position, GFC_Color color, Entity *player)
 {
 	Entity* self;
@@ -17,7 +19,8 @@ Entity* rocketbot_spawn(GFC_Vector3D position, GFC_Color color, Entity *player)
 	if (!self)return;
 	gfc_line_cpy(self->name, "rocketbot");
 	self->obj = "monster";
-	self->mesh = gf3d_mesh_load("models/turret.obj");
+	if(rocketbotmesh == NULL)rocketbotmesh = gf3d_mesh_load("models/turret.obj");
+	self->mesh = rocketbotmesh;
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position;
@@ -138,6 +141,11 @@ void rocketbot_collide(Entity* self, Entity* collide)
 		self->position.x += (monstermovedir->x * 5.0f);
 		self->position.y += (monstermovedir->y * 5.0f);
 
+		self->health -= 1;
+	}
+
+	if (collide->obj == "explo")
+	{
 		self->health -= 1;
 	}
 }

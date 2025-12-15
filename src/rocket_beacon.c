@@ -7,6 +7,8 @@ void rocket_beacon_free(Entity* self);
 
 int rocket_rand_x = 0, rocket_rand_y = 0;
 
+Mesh* rocketbeaconmesh = NULL;
+
 Entity* rocket_beacon_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
@@ -14,7 +16,8 @@ Entity* rocket_beacon_spawn(GFC_Vector3D position, GFC_Color color)
 	if (!self)return;
 	gfc_line_cpy(self->name, "rocket_beacon");
 	self->obj = "rocket_beacon";
-	self->mesh = gf3d_mesh_load("models/Rocket_beacon.obj");
+	if(rocketbeaconmesh == NULL)rocketbeaconmesh = gf3d_mesh_load("models/Rocket_beacon.obj");
+	self->mesh = rocketbeaconmesh;
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position;

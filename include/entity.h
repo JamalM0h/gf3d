@@ -32,6 +32,7 @@ typedef struct Entity_S
 	int				level;
 	int				exp;
 	int				itemidnum;
+	int             class;
 	float           jumpForce;
 	float			attSpeed;
 	float			attMod;

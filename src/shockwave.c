@@ -5,6 +5,8 @@
 void shockwave_update(Entity* self);
 void shockwave_free(Entity* self);
 
+Mesh* shockwavemesh = NULL; 
+
 Entity* shockwave_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
@@ -12,7 +14,8 @@ Entity* shockwave_spawn(GFC_Vector3D position, GFC_Color color)
 	if (!self)return;
 	gfc_line_cpy(self->name, "shockwave");
 	self->obj = "shockwave";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if(shockwavemesh == NULL)shockwavemesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->mesh = shockwavemesh;
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position;

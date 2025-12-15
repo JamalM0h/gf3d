@@ -8,6 +8,7 @@ void itemcon_update(Entity* self);
 void itemcon_free(Entity* self);
 void itemcon_collide(Entity* self, Entity* collide);
 
+Entity* itemconmesh = NULL; 
 
 Entity* item_container_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D playpos, int itemid)
 {
@@ -17,7 +18,8 @@ Entity* item_container_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3
 	if (!self)return;
 	gfc_line_cpy(self->name, "itemcon");
 	self->obj = "itemcon";
-	self->mesh = gf3d_mesh_load("models/itemcontainer.obj");
+	if(itemconmesh == NULL)itemconmesh = gf3d_mesh_load("models/itemcontainer.obj"); 
+	self->mesh = itemconmesh; 
 	self->texture = gf3d_texture_load("models/primitives/flatgrey.png");
 	self->color = color;
 	self->position = position;

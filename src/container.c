@@ -7,6 +7,8 @@ void container_update(Entity* self);
 void container_free(Entity* self);
 void container_collide(Entity* self, Entity* collide);
 
+Mesh* containermesh = NULL, *opencontainermesh = NULL; 
+
 Entity* container_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
@@ -15,7 +17,9 @@ Entity* container_spawn(GFC_Vector3D position, GFC_Color color)
 	if (!self)return;
 	gfc_line_cpy(self->name, "container");
 	self->obj = "container";
-	self->mesh = gf3d_mesh_load("models/container.obj");
+	if(containermesh == NULL)containermesh = gf3d_mesh_load("models/container.obj"); 
+	if(opencontainermesh == NULL)opencontainermesh = gf3d_mesh_load("models/opencontainer.obj");  
+	self->mesh = containermesh; 
 	self->texture = gf3d_texture_load("models/primitives/flatblue.png");
 	self->color = color;
 	self->position = position;
@@ -76,5 +80,5 @@ void container_collide(Entity* self, Entity* collide)
 	}
 
 	self->obj = "usedcontainer";   
-	self->mesh = gf3d_mesh_load("models/opencontainer.obj"); 
+	self->mesh = opencontainermesh; 
 }

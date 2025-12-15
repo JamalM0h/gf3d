@@ -51,13 +51,17 @@ int main(int argc,char *argv[])
     float theta = 0;
     int offset = 0, i = 0, stage = 0; 
     Bool *ismonspawning = true;
+    Bool initStart = true;
+    Bool isPaused = true;
+    Bool regMenu = true;
+    int menupointer = 0, classmenupointer = 0; 
     float monstimer = 0;
     GFC_Vector3D lightPos = {0,0,-1000};
     GFC_Vector3D *cam = gfc_vector3d_new();
-    GFC_Vector2D* healthbarscale = gfc_vector2d_new(), * healthbarbackscale = gfc_vector2d_new(), * armorbarbackscale = gfc_vector2d_new(), *levelbarbackscale = gfc_vector2d_new(), *levelbarscale = gfc_vector2d_new(), * moveCdscale = gfc_vector2d_new(), * specCdscale = gfc_vector2d_new(), * attCdscale = gfc_vector2d_new(), * goldscale = gfc_vector2d_new(), * interactbarscale = gfc_vector2d_new(), *cdBackscale = gfc_vector2d_new();
+    GFC_Vector2D* healthbarscale = gfc_vector2d_new(), * healthbarbackscale = gfc_vector2d_new(), * armorbarbackscale = gfc_vector2d_new(), *levelbarbackscale = gfc_vector2d_new(), *levelbarscale = gfc_vector2d_new(), * moveCdscale = gfc_vector2d_new(), * specCdscale = gfc_vector2d_new(), * attCdscale = gfc_vector2d_new(), * goldscale = gfc_vector2d_new(), * interactbarscale = gfc_vector2d_new(), *cdBackscale = gfc_vector2d_new(), *menuScale = gfc_vector2d_new(), *menuBackScale = gfc_vector2d_new(), *classMenuScale = gfc_vector2d_new();
     GFC_Matrix4 id;
     Entity* player, *teleporter, *worldobj;
-    Sprite* itembox, * syringe, * boot, * moveCd, * specCd, * healthUp, * jumpUp, * armor, * sword, * healthbar, *healthbarback, *armorbarback, *levelbar, *leftmouse, *attackicon, *movementicon, *shiftkey, *staricon, *ekey;
+    Sprite* itembox, * syringe, * boot, * moveCd, * specCd, * healthUp, * jumpUp, * armor, * sword, * healthbar, *healthbarback, *armorbarback, *levelbar, *leftmouse, *attackicon, *movementicon, *shiftkey, *staricon, *ekey, *menuS, *menuE, *menuBack, *classMenuSo, * classMenuSw, * classMenuMp, * classMenuEn, * classMenuRo;
     char array[5];
     //initializtion  
     parse_arguments(argc,argv);
@@ -111,6 +115,15 @@ int main(int argc,char *argv[])
     interactbarscale->x = 4.7;
     interactbarscale->y = 0.75;
 
+    menuScale->x = 1.25;
+    menuScale->y = 1.25;
+
+    menuBackScale->x = 1;
+    menuBackScale->y = 1;
+
+    classMenuScale->x = 1.25;
+    classMenuScale->y = 1.25;
+
     teleporter = teleporter_spawn(gfc_vector3d(-50, -75, -1), GFC_COLOR_WHITE); 
 
     GFC_Vector3D randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, -1); 
@@ -120,29 +133,30 @@ int main(int argc,char *argv[])
     {
         int thingtospawn = gfc_random_int(100);
         randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, 0);
-        if (thingtospawn <= 30)
+        if (thingtospawn <= 40)
         {
             item_container_spawn(randompos, GFC_COLOR_WHITE, player->position, gfc_random_int(8));
         }
-        else if (thingtospawn > 30 && thingtospawn <= 50)
+        else if (thingtospawn > 40 && thingtospawn <= 60)
         {
             randompos.z = -3;
             randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
         }
-        else if (thingtospawn > 50 && thingtospawn <= 60)
+        else if (thingtospawn > 60 && thingtospawn <= 70)
         {
             randompos.z = -3;
             healthShrine_spawn(randompos, GFC_COLOR_WHITE);
         }
-        else if (thingtospawn > 60 && thingtospawn <= 80)
+        else if (thingtospawn > 70)
         {
             randompos.z = -3;
             container_spawn(randompos, GFC_COLOR_WHITE);
         }
-        else if (thingtospawn > 80)
-        {
-            //randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
-        }
+        //else if (thingtospawn > 80)
+        //{
+            //randompos.z = -3; 
+            //randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position); 
+        //}
     }
     
     SDL_SetRelativeMouseMode(SDL_TRUE); 
@@ -177,23 +191,41 @@ int main(int argc,char *argv[])
     shiftkey = gf2d_sprite_load("models/ui/shiftkey.png", 64, 64, 0); 
     staricon = gf2d_sprite_load("models/ui/star.png", 128, 128, 0);
     ekey = gf2d_sprite_load("models/ui/ekey.png", 64, 64, 0);
+
+    menuS = gf2d_sprite_load("models/menuS.png", 2048, 1280, 0);
+    menuE = gf2d_sprite_load("models/menuEx.png", 2048, 1280, 0);  
+    menuBack = gf2d_sprite_load("models/menuback.jpg", 1920, 1080, 0);
+
+    classMenuSo = gf2d_sprite_load("models/classMenuSo.png", 2048, 1280, 0);
+    classMenuRo = gf2d_sprite_load("models/classMenuRo.png", 2048, 1280, 0);
+    classMenuSw = gf2d_sprite_load("models/classMenuSw.png", 2048, 1280, 0);
+    classMenuMp = gf2d_sprite_load("models/classMenuMp.png", 2048, 1280, 0);
+    classMenuEn = gf2d_sprite_load("models/classMenuEn.png", 2048, 1280, 0); 
     
     // main game loop    
     while(!_done)
     {
-        gfc_input_update();
-        gf2d_mouse_update();
-        gf2d_font_update();
-        entity_think_all();  
-        entity_update_all();
-        entity_system_collision(); 
-        theta += 0.1;
-        //camera updaes
-        gf3d_camera_update_view();
-        gf3d_vgraphics_render_start();
+            gfc_input_update();
+            gf2d_mouse_update();
+            gf2d_font_update();
+
+            if (initStart == true) 
+            { 
+                isPaused = true; 
+            }
+            if (isPaused != true) 
+            {
+                entity_think_all();
+                entity_update_all();
+                entity_system_collision();
+            }
+            theta += 0.1;
+            //camera updaes
+            gf3d_camera_update_view();
+            gf3d_vgraphics_render_start();
             //3d draws   
-            gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture); 
-            entity_draw_all(lightPos, GFC_COLOR_WHITE);   
+            gf3d_sky_draw(mesh, id, GFC_COLOR_WHITE, texture);
+            entity_draw_all(lightPos, GFC_COLOR_WHITE);
             //gf2d_font_draw_line_tag("ALT+F4 to exit", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(10, 10));
            // gf2d_font_draw_line_tag("X", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(631, 390));
             //if (player->SpecCD >= 1.0)gf2d_font_draw_line_tag("Special Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(1536, 922));
@@ -201,70 +233,72 @@ int main(int argc,char *argv[])
             //if (player->MoveCD >= 1.0)gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_GREEN, gfc_vector2d(1536, 972));
             //else gf2d_font_draw_line_tag("Movement Ready", FT_H1, GFC_COLOR_RED, gfc_vector2d(1536, 972));
 
+            if(isPaused != true){
+
             if (player->canInteract == true)
             {
-                gf2d_sprite_draw(healthbarback, gfc_vector2d(1228, 530), interactbarscale, NULL, NULL, NULL, NULL, NULL, NULL); 
-                gf2d_font_draw_line_tag("Press  Enter  Key", FT_H1, GFC_COLOR_BLACK, gfc_vector2d(1240, 540)); 
+                gf2d_sprite_draw(healthbarback, gfc_vector2d(1228, 530), interactbarscale, NULL, NULL, NULL, NULL, NULL, NULL);
+                gf2d_font_draw_line_tag("Press  Enter  Key", FT_H1, GFC_COLOR_BLACK, gfc_vector2d(1240, 540));
             }
 
-            gf2d_sprite_draw(healthbarback, gfc_vector2d(260, 925), levelbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL); 
+            gf2d_sprite_draw(healthbarback, gfc_vector2d(260, 925), levelbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL);
 
-            gf2d_sprite_draw(armorbarback, gfc_vector2d(65, 925), armorbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL); 
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(65, 925), armorbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL);
 
             levelbarscale->x = ((float)player->exp / 100.0f) * 7.0f;
-            gf2d_sprite_draw(levelbar, gfc_vector2d(260, 925), levelbarscale, NULL, NULL, NULL, NULL, NULL, NULL);  
+            gf2d_sprite_draw(levelbar, gfc_vector2d(260, 925), levelbarscale, NULL, NULL, NULL, NULL, NULL, NULL);
 
             gf2d_sprite_draw(healthbarback, gfc_vector2d(65, 972), healthbarbackscale, NULL, NULL, NULL, NULL, NULL, NULL);
 
-            healthbarscale->x = ((float)player->health / (float)player->maxhealth) * 10.0f; 
+            healthbarscale->x = ((float)player->health / (float)player->maxhealth) * 10.0f;
             gf2d_sprite_draw(healthbar, gfc_vector2d(65, 972), healthbarscale, NULL, NULL, NULL, NULL, NULL, NULL);
 
-            snprintf(array, sizeof(array), "%i", player->health); 
+            snprintf(array, sizeof(array), "%i", player->health);
             gf2d_font_draw_line_tag("Health: ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(265, 989));
-            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(390, 990));  
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(390, 990));
 
             snprintf(array, sizeof(array), "%i", player->maxhealth);
-            gf2d_font_draw_line_tag(" | ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(455, 988)); 
-            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(490, 990)); 
+            gf2d_font_draw_line_tag(" | ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(455, 988));
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(490, 990));
 
-            snprintf(array, sizeof(array), "%i", player->armor); 
-            gf2d_font_draw_line_tag("Armor: ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(71, 933));  
+            snprintf(array, sizeof(array), "%i", player->armor);
+            gf2d_font_draw_line_tag("Armor: ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(71, 933));
             gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(180, 933));
 
             snprintf(array, sizeof(array), "%i", player->level);
             gf2d_font_draw_line_tag("Level: ", FT_H1, GFC_COLOR_WHITE, gfc_vector2d(436, 933));
             gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_WHITE, gfc_vector2d(545, 933));
 
-            attCdscale->y = ((float)player->attSpeed / 1.0f) * -2.0f; 
+            attCdscale->y = ((float)player->attSpeed / 1.0f) * -2.0f;
             if (attCdscale->y < -2.0f)attCdscale->y = -2.0f;
             gf2d_sprite_draw(armorbarback, gfc_vector2d(1300, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(healthbarback, gfc_vector2d(1300, 951), attCdscale, NULL, NULL, NULL, NULL, NULL, NULL);
-            gf2d_sprite_draw(attackicon, gfc_vector2d(1300, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL);   
-            gf2d_sprite_draw(leftmouse, gfc_vector2d(1335, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL);  
+            gf2d_sprite_draw(attackicon, gfc_vector2d(1300, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+            gf2d_sprite_draw(leftmouse, gfc_vector2d(1335, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-            moveCdscale->y = ((float)player->MoveCD / 1.0f) * -2.0f; 
+            moveCdscale->y = ((float)player->MoveCD / 1.0f) * -2.0f;
             if (moveCdscale->y < -2.0f)moveCdscale->y = -2.0f;
-            gf2d_sprite_draw(armorbarback, gfc_vector2d(1450, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL); 
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(1450, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(healthbarback, gfc_vector2d(1450, 951), moveCdscale, NULL, NULL, NULL, NULL, NULL, NULL);
-            gf2d_sprite_draw(movementicon, gfc_vector2d(1450, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+            gf2d_sprite_draw(movementicon, gfc_vector2d(1450, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(shiftkey, gfc_vector2d(1482, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-            specCdscale->y = ((float)player->SpecCD / 1.0f) * -2.0f; 
+            specCdscale->y = ((float)player->SpecCD / 1.0f) * -2.0f;
             if (specCdscale->y < -2.0f)specCdscale->y = -2.0f;
-            gf2d_sprite_draw(armorbarback, gfc_vector2d(1598, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL);   
+            gf2d_sprite_draw(armorbarback, gfc_vector2d(1598, 951), cdBackscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(healthbarback, gfc_vector2d(1598, 951), specCdscale, NULL, NULL, NULL, NULL, NULL, NULL);
             gf2d_sprite_draw(staricon, gfc_vector2d(1598, 822), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-            gf2d_sprite_draw(ekey, gfc_vector2d(1630, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
+            gf2d_sprite_draw(ekey, gfc_vector2d(1630, 982), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-            gf2d_sprite_draw(itembox, gfc_vector2d(640,20),NULL,NULL,NULL,NULL,NULL,NULL,NULL); 
+            gf2d_sprite_draw(itembox, gfc_vector2d(640, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
             offset = 0;
 
             if (player->inventory[0] != 0)
             {
-                gf2d_sprite_draw(syringe, gfc_vector2d(640 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL); 
-                snprintf(array, sizeof(array), "%i", player->inventory[0]); 
-                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(642 + offset, 94)); 
+                gf2d_sprite_draw(syringe, gfc_vector2d(640 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+                snprintf(array, sizeof(array), "%i", player->inventory[0]);
+                gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(642 + offset, 94));
                 offset += 64;
             }
             if (player->inventory[1] != 0)
@@ -277,7 +311,7 @@ int main(int argc,char *argv[])
             if (player->inventory[2] != 0)
             {
                 gf2d_sprite_draw(moveCd, gfc_vector2d(640 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-                snprintf(array, sizeof(array), "%i", player->inventory[2]); 
+                snprintf(array, sizeof(array), "%i", player->inventory[2]);
                 gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(642 + offset, 94));
                 offset += 64;
             }
@@ -305,9 +339,9 @@ int main(int argc,char *argv[])
             if (player->inventory[6] != 0)
             {
                 gf2d_sprite_draw(armor, gfc_vector2d(640 + offset, 20), NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-                snprintf(array, sizeof(array), "%i", player->inventory[6]); 
+                snprintf(array, sizeof(array), "%i", player->inventory[6]);
                 gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_GREY, gfc_vector2d(642 + offset, 94));
-                offset += 64; 
+                offset += 64;
             }
             if (player->inventory[7] != 0)
             {
@@ -317,50 +351,50 @@ int main(int argc,char *argv[])
                 offset += 64;
             }
 
-            snprintf(array, sizeof(array), "%i", player->money); 
-            gf2d_sprite_draw(healthbarback, gfc_vector2d(238, 30), goldscale, NULL, NULL, NULL, NULL, NULL, NULL);  
-            gf2d_font_draw_line_tag("Gold: ", FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(250, 40));  
-            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(345, 40)); 
+            snprintf(array, sizeof(array), "%i", player->money);
+            gf2d_sprite_draw(healthbarback, gfc_vector2d(238, 30), goldscale, NULL, NULL, NULL, NULL, NULL, NULL);
+            gf2d_font_draw_line_tag("Gold: ", FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(250, 40));
+            gf2d_font_draw_line_tag(array, FT_H1, GFC_COLOR_YELLOW, gfc_vector2d(345, 40));
 
-            if(teleporter->obj == "teleporter")monstimer += 0.005;
+            if (teleporter->obj == "teleporter")monstimer += 0.005;
             if (monstimer >= 1 && teleporter->obj == "teleporter")
             {
-                int whichmonster = gfc_random_int(5);  
+                int whichmonster = gfc_random_int(5);
                 //int whichmonster = 4;  
                 GFC_Vector3D monspos = gfc_vector3d(gfc_random_int(300) - 150, gfc_random_int(300) - 150, 0);
                 if (whichmonster == 0)
                 {
-                    crawler_spawn(monspos, GFC_COLOR_WHITE, player); 
+                    crawler_spawn(monspos, GFC_COLOR_WHITE, player);
                 }
                 else if (whichmonster == 1)
                 {
-                    ranger_spawn(monspos, GFC_COLOR_WHITE, player); 
+                    ranger_spawn(monspos, GFC_COLOR_WHITE, player);
                 }
                 else if (whichmonster == 2)
                 {
-                    flyer_spawn(monspos, GFC_COLOR_WHITE, player); 
+                    flyer_spawn(monspos, GFC_COLOR_WHITE, player);
                 }
                 else if (whichmonster == 3)
                 {
-                    crusher_spawn(monspos, GFC_COLOR_WHITE, player); 
+                    crusher_spawn(monspos, GFC_COLOR_WHITE, player);
                 }
                 else if (whichmonster == 4)
                 {
-                    rocketbot_spawn(monspos, GFC_COLOR_WHITE, player); 
+                    rocketbot_spawn(monspos, GFC_COLOR_WHITE, player);
                 }
-                monstimer = 0; 
+                monstimer = 0;
             }
 
             if (teleporter->obj == "teleporterdone")
             {
-                GFC_Vector3D randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, -1); 
+                GFC_Vector3D randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, -1);
                 teleporter->position = randompos;
                 teleporter->obj = "teleporter";
-                if (stage < 2)stage+=1;
+                if (stage < 2)stage += 1;
                 else stage = 0;
                 if (stage == 0) {
-                    texture = gf3d_texture_load("models/alienCave.png"); 
-                    worldobj->texture = gf3d_texture_load("models/black-stone.jpg"); 
+                    texture = gf3d_texture_load("models/alienCave.png");
+                    worldobj->texture = gf3d_texture_load("models/black-stone.jpg");
                 }
                 else if (stage == 1) {
                     texture = gf3d_texture_load("models/spacesky.png");
@@ -372,36 +406,109 @@ int main(int argc,char *argv[])
                 }
                 for (i = 0; i < 15; i++)
                 {
-                    int thingtospawn = gfc_random_int(100); 
-                    randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, 0); 
-                    if (thingtospawn <= 30)
+                    int thingtospawn = gfc_random_int(100);
+                    randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, 0);
+                    if (thingtospawn <= 40)
                     {
                         item_container_spawn(randompos, GFC_COLOR_WHITE, player->position, gfc_random_int(8));
                     }
-                    else if (thingtospawn > 30 && thingtospawn <= 50)
+                    else if (thingtospawn > 40 && thingtospawn <= 60)
                     {
-                        randompos.z = -3;  
+                        randompos.z = -3;
                         randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
                     }
-                    else if (thingtospawn > 50 && thingtospawn <= 60)
+                    else if (thingtospawn > 60 && thingtospawn <= 70)
                     {
-                        randompos.z = -3; 
-                        healthShrine_spawn(randompos, GFC_COLOR_WHITE); 
+                        randompos.z = -3;
+                        healthShrine_spawn(randompos, GFC_COLOR_WHITE);
                     }
-                    else if (thingtospawn > 60 && thingtospawn <= 80)
+                    else if (thingtospawn > 70)
                     {
                         randompos.z = -3;
                         container_spawn(randompos, GFC_COLOR_WHITE);
                     }
-                    else if (thingtospawn > 80)
-                    {
-                        //randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position);
-                    }
+                    //else if (thingtospawn > 80)
+                    //{
+                        //randompos.z = -3; 
+                        //randomShrine_spawn(randompos, GFC_COLOR_WHITE, player->position); 
+                    //}
                 }
+            }
+            }
+            else if (isPaused == true)
+            {
+                if(initStart == true)gf2d_sprite_draw(menuBack, gfc_vector2d(0, 0), menuBackScale, NULL, NULL, NULL, NULL, NULL, NULL);
+                if(menupointer == 0 && regMenu == true)gf2d_sprite_draw(menuS, gfc_vector2d(550, 300), menuScale, NULL, NULL, NULL, NULL, NULL, NULL); 
+                else if(menupointer == 1 && regMenu == true)gf2d_sprite_draw(menuE, gfc_vector2d(550, 300), menuScale, NULL, NULL, NULL, NULL, NULL, NULL);  
+                if(regMenu == false && classmenupointer == 0)gf2d_sprite_draw(classMenuSo, gfc_vector2d(550, 30), classMenuScale, NULL, NULL, NULL, NULL, NULL, NULL); 
+                if(regMenu == false && classmenupointer == 1)gf2d_sprite_draw(classMenuRo, gfc_vector2d(550, 30), classMenuScale, NULL, NULL, NULL, NULL, NULL, NULL);
+                if(regMenu == false && classmenupointer == 2)gf2d_sprite_draw(classMenuSw, gfc_vector2d(550, 30), classMenuScale, NULL, NULL, NULL, NULL, NULL, NULL);
+                if(regMenu == false && classmenupointer == 3)gf2d_sprite_draw(classMenuMp, gfc_vector2d(550, 30), classMenuScale, NULL, NULL, NULL, NULL, NULL, NULL);
+                if(regMenu == false && classmenupointer == 4)gf2d_sprite_draw(classMenuEn, gfc_vector2d(550, 30), classMenuScale, NULL, NULL, NULL, NULL, NULL, NULL);
             }
 
         gf3d_vgraphics_render_end();
+
         if (gfc_input_command_down("exit"))_done = 1; // exit condition
+        if (gfc_input_command_pressed("cancel") && isPaused == false)isPaused = true;
+
+        if (gfc_input_command_pressed("interact") && regMenu == true && menupointer == 0 && initStart == true && isPaused == true) {
+            regMenu = false;
+        }
+        else if (gfc_input_command_pressed("interact") && regMenu == false && isPaused == true) {
+
+            if (classmenupointer == 0)
+            {
+                player->class = 0;
+                player->attMod = 3.0f;
+            }
+            else if (classmenupointer == 1)
+            {
+                player->class = 1;
+                player->attMod = 0.25f; 
+            }
+            else if (classmenupointer == 2)
+            {
+                player->class = 2;
+                player->attMod = 1.0f; 
+                player->rotation.z += 1;  
+                player->mesh = gf3d_mesh_load("models/PlayerSword.obj"); 
+            }
+            else if (classmenupointer == 3)
+            {
+                player->class = 3;
+                player->attMod = 1.0f;
+            }
+            else if (classmenupointer == 4)
+            {
+                player->class = 4;
+                player->attMod = 0.2f;
+            }
+
+            regMenu = true;
+            initStart = false;
+            isPaused = false;
+        }
+        else if (gfc_input_command_pressed("interact") && menupointer == 0 && regMenu == true && isPaused == true)isPaused = false;
+        else if (gfc_input_command_pressed("interact") && menupointer == 1 && regMenu == true && isPaused == true)_done = 1; 
+
+        if (gfc_input_command_pressed("panup") && regMenu == true) {
+            if (menupointer == 0)menupointer = 1;
+            else menupointer = 0;
+        }
+        else if (gfc_input_command_pressed("pandown") && regMenu == true) {
+            if (menupointer == 1)menupointer = 0;
+            else menupointer = 1;
+        }
+        if (gfc_input_command_pressed("panup") && regMenu == false) {
+            if (classmenupointer > 0)classmenupointer -= 1;
+            else classmenupointer = 4;
+        }
+        else if (gfc_input_command_pressed("pandown") && regMenu == false) {
+            if (classmenupointer < 4)classmenupointer += 1;
+            else classmenupointer = 0;
+        }
+
         game_frame_delay();
     }
     vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());    

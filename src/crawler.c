@@ -9,6 +9,8 @@ void crawler_collide(Entity* self, Entity* collide);
 
 Entity* crawlerenemy; 
 
+Mesh* crawlermesh = NULL;
+
 Entity* crawler_spawn(GFC_Vector3D position, GFC_Color color, Entity *player) 
 {
 	Entity* self;
@@ -16,7 +18,8 @@ Entity* crawler_spawn(GFC_Vector3D position, GFC_Color color, Entity *player)
 	if (!self)return;
 	gfc_line_cpy(self->name, "crawler");
 	self->obj = "monster";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if(crawlermesh == NULL)crawlermesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	self->mesh = crawlermesh;
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position;
@@ -116,6 +119,11 @@ void crawler_collide(Entity* self, Entity* collide)
 		self->position.x += (monstermovedir->x * 5.0f);
 		self->position.y += (monstermovedir->y * 5.0f);
 
+		self->health -= 1;
+	}
+
+	if (collide->obj == "explo")
+	{
 		self->health -= 1;
 	}
 }

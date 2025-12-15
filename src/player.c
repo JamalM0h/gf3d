@@ -11,7 +11,7 @@ void player_update(Entity* self);
 void player_collide(Entity* self, Entity* collide);
 
 GFC_Vector3D dir = { 0 }, velocity = { 0 }, up = { 0 }, angle = { 0 };
-int jump = 0, class = 0, isMech = 0, swordspin = 0, swordswing = 0;
+int jump = 0, isMech = 0, swordspin = 0, swordswing = 0;
 float theta = 0, zax = 5, yax = 40;
 float dashMod = 1, leaping = 0, jetFuel = 100, speedMod = 1, moveCDMod = 0, specCDMod = 0, speedpadmode = 0;
 Entity* teleent = NULL, * teleext = NULL;  
@@ -36,6 +36,9 @@ Entity* player_init(GFC_Vector3D position, GFC_Color color)
 	self->collide = player_collide;
 	GFC_Box hitbox = gfc_box(self->position.x, self->position.y, self->position.z, 5, 5, 5); 
 	self->bounds = hitbox; 
+
+	self->class = 0;
+
 	self->attSpeed = 1;
 	self->attMod = 3.0;
 	self->speedMod = 1.0;
@@ -108,8 +111,8 @@ void player_think(Entity* self)
 
 	if (gfc_input_command_down("crouch"))
 	{
-		if (class == 0)class = 1;
-		else if (class == 1) class = 0;
+		if (self->class == 0)self->class = 1;
+		else if (self->class == 1) self->class = 0;
 	}
 
 	if (gfc_input_command_pressed("jump") && (jump == 1))
@@ -141,27 +144,27 @@ void player_think(Entity* self)
 	else if ((SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LMASK) && (self->attSpeed >= 1))
 	{
 		self->attSpeed = 0;
-		if (class == 0 || (class == 3 && isMech == 0))
+		if (self->class == 0 || (self->class == 3 && isMech == 0))
 		{
 			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 		}
-		else if (class == 1)
+		else if (self->class == 1)
 		{
 			create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.25), GFC_COLOR_WHITE, false, self->damageMod);
 		}
-		else if (class == 2)
+		else if (self->class == 2)
 		{
 			swordswing = 10 / self->attMod;
 		}
-		else if (class == 3 && isMech > 0)
+		else if (self->class == 3 && isMech > 0)
 		{
-			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 		}
-		else if (class == 4)
+		else if (self->class == 4)
 		{
-			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.20), GFC_COLOR_WHITE, self->damageMod);
+			create_projectile(self->position, gfc_vector3d(camforward->x, camforward->y, (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.1), camforward->y + (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 			create_projectile(self->position, gfc_vector3d(camforward->x - (camright->x * 0.1), camforward->y - (camright->y * 0.1), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
 			create_projectile(self->position, gfc_vector3d(camforward->x + (camright->x * 0.2), camforward->y + (camright->y * 0.2), (5 - zax) * 0.25), GFC_COLOR_WHITE, self->damageMod);
@@ -169,46 +172,46 @@ void player_think(Entity* self)
 		}
 	}
 
-	if (gfc_input_command_pressed("no")) 
-	{
-		if (class <= 3)class += 1;
-		else class = 0;
-		slog("class: %i", class);
-		if (class == 0)self->attMod = 3.0f;
-		else if (class == 1)self->attMod = 0.25f;
-		else if (class == 2)
-		{
-			self->attMod = 1.0f;
-			self->rotation.z += 1; 
-			self->mesh = gf3d_mesh_load("models/PlayerSword.obj");
-		}
-		else if (class == 3) 
-		{
-			self->attMod = 1.0f;
-			self->rotation.z -= 1;
-			self->mesh = gf3d_mesh_load("models/Player.obj");
-		}
+	//if (gfc_input_command_pressed("no")) 
+	//{
+	//	if (self->class <= 3)self->class += 1;
+	//	else self->class = 0;
+	//	slog("class: %i", self->class);
+	//	if (self->class == 0)self->attMod = 3.0f;
+	//	else if (self->class == 1)self->attMod = 0.25f;
+	//	else if (self->class == 2)
+	//	{
+	//		self->attMod = 1.0f;
+	//		self->rotation.z += 1; 
+	//		self->mesh = gf3d_mesh_load("models/PlayerSword.obj");
+		//}
+		//else if (self->class == 3)
+		//{
+		//	self->attMod = 1.0f;
+		//	self->rotation.z -= 1;
+		//	self->mesh = gf3d_mesh_load("models/Player.obj");
+		//}
 		
-		else if (class == 4)self->attMod = 0.2f;
-	}
+		//else if (self->class == 4)self->attMod = 0.2f;
+	//}
 
 	//if (gfc_input_command_held("cancel"))self->health -= 1;
-	if (gfc_input_command_held("cancel"))self->money += 10;
-	if (gfc_input_command_held("cancel"))self->exp += 5;
+	//if (gfc_input_command_held("cancel"))self->money += 10;
+	//if (gfc_input_command_held("cancel"))self->exp += 5;
 
 	if(self->MoveCD < 1.0)self->MoveCD += 0.01 + moveCDMod;
 	if(self->SpecCD < 1.0)self->SpecCD += 0.01 + specCDMod;
 
-	if (class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
+	if (self->class == 0 && gfc_input_command_held("movementab") && self->position.z <= 0)
 	{
 		dir = gfc_vector3d_multiply(dir, gfc_vector3d(1.4, 1.4, 0));
 		self->MoveCD = 0;
 	}
-	if (class == 0 && gfc_input_command_released("movementab")) 
+	if (self->class == 0 && gfc_input_command_released("movementab"))
 	{
 		self->MoveCD = 1.0;
 	}
-	if (class == 1 && gfc_input_command_pressed("movementab") && jump == 1 && self->MoveCD >= 1.0)      
+	if (self->class == 1 && gfc_input_command_pressed("movementab") && jump == 1 && self->MoveCD >= 1.0)
 	{
 		up.z = 3.5;
 		//dir.x += camforward->x * 50;
@@ -216,39 +219,39 @@ void player_think(Entity* self)
 		jump = 0;
 		leaping = 40;
 		self->MoveCD = 0;
-		create_explosion(self->position, GFC_COLOR_WHITE);
+		create_explosion(self->position, GFC_COLOR_WHITE, true);
 	}
-	else if (class == 1 && leaping > 0)
+	else if (self->class == 1 && leaping > 0)
 	{
 		dir.x += camforward->x * 3; 
 		dir.y += camforward->y * 3; 
 		up.z += 0.05;
 		leaping -= 1; 
 	}
-	if (class == 2 && (gfc_input_command_held("movementab")) && self->MoveCD >= 1.0)
+	if (self->class == 2 && (gfc_input_command_held("movementab")) && self->MoveCD >= 1.0)
 	{
 		if(dashMod < 100)dashMod += 2;
 		dir.x *= 0.20;
 		dir.y *= 0.20;
 	}
-	else if (class == 2 && (gfc_input_command_released("movementab")) && self->MoveCD >= 1.0)
+	else if (self->class == 2 && (gfc_input_command_released("movementab")) && self->MoveCD >= 1.0)
 	{
 		dir.x += camforward->x * dashMod;
 		dir.y += camforward->y * dashMod; 
 		dashMod = 1;
 		self->MoveCD = 0;
 	}
-	if (class == 3 && (gfc_input_command_held("movementab")) && jetFuel > 0)
+	if (self->class == 3 && (gfc_input_command_held("movementab")) && jetFuel > 0)
 	{
 		if (up.z < 1 && isMech == 0)up.z += 0.25;
 		else if (isMech > 0) up.z = 0;
 		if(isMech == 0)jetFuel -= 1;
 	}
-	else if (class == 3 && self->position.z <= 0 && jetFuel < 100)
+	else if (self->class == 3 && self->position.z <= 0 && jetFuel < 100)
 	{
 		jetFuel += 2;
 	}
-	if (class == 4 && (gfc_input_command_pressed("movementab")))
+	if (self->class == 4 && (gfc_input_command_pressed("movementab")))
 	{
 		if (teleext == NULL) {
 			teleext = tele_spawn(self->position, GFC_COLOR_WHITE);
@@ -272,32 +275,32 @@ void player_think(Entity* self)
 		self->MoveCD = 0;
 	}
 
-	if (class == 0 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0)
+	if (self->class == 0 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0)
 	{
 		buff_field_spawn(gfc_vector3d(self->position.x, self->position.y, -3.5), GFC_COLOR_WHITE);
 		self->SpecCD = 0;
 	}
-	if (class == 1 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0) 
+	if (self->class == 1 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0)
 	{
 		rocket_beacon_spawn(self->position, GFC_COLOR_WHITE);
 		self->SpecCD = 0; 
 	} 
-	if (class == 2 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0)
+	if (self->class == 2 && gfc_input_command_pressed("specialab") && self->SpecCD >= 1.0)
 	{
 		swordspin = 60;
 		self->SpecCD = 0;
 	}
-	if (class == 3 && gfc_input_command_held("specialab") && isMech <= 0 && self->SpecCD >= 1.0)
+	if (self->class == 3 && gfc_input_command_held("specialab") && isMech <= 0 && self->SpecCD >= 1.0)
 	{
 		mech_spawn(gfc_vector3d(self->position.x + (camforward->x * 30), self->position.y + (camforward->y * 30), 200), GFC_COLOR_WHITE, self->rotation.z);  
 		self->SpecCD = 0;
 	}
-	if (class == 3 && gfc_input_command_held("specialab") && (isMech > 0) && (self->attSpeed >= 1))
+	if (self->class == 3 && gfc_input_command_held("specialab") && (isMech > 0) && (self->attSpeed >= 1))
 	{
 		create_rocket(self->position, gfc_vector3d(camforward->x, camforward->y, 0), GFC_COLOR_WHITE, true, self->damageMod);
 		self->attSpeed = 0;
 	}
-	if (class == 3 && isMech == 500)
+	if (self->class == 3 && isMech == 500)
 	{
 		self->mesh = gf3d_mesh_load("models/mech.obj");
 		self->scale = gfc_vector3d(4, 4, 4);
@@ -305,7 +308,7 @@ void player_think(Entity* self)
 		self->attMod += 0.5;
 		isMech = 500;
 	}
-	else if (class == 3 && isMech == 1)
+	else if (self->class == 3 && isMech == 1)
 	{
 		self->mesh = gf3d_mesh_load("models/Player.obj");
 		self->scale = gfc_vector3d(2.5, 2.5, 2.5);
@@ -315,7 +318,7 @@ void player_think(Entity* self)
 		self->SpecCD = 0;
 		jetFuel = 0;
 	}
-	if (class == 4 && (gfc_input_command_pressed("specialab")) && self->SpecCD >= 1.0)
+	if (self->class == 4 && (gfc_input_command_pressed("specialab")) && self->SpecCD >= 1.0)
 	{
 		turret_spawn(gfc_vector3d(self->position.x, self->position.y, 0), GFC_COLOR_WHITE);
 		self->SpecCD = 0;
@@ -390,7 +393,7 @@ void player_update(Entity* self)
 	GFC_Vector2D newvec = { 0 };
 	if (!self)return;
 
-	if ((swordspin > 0) && (class == 2))
+	if ((swordspin > 0) && (self->class == 2))
 	{
 		self->rotation.z += (GFC_2PI * 5) / 60;
 		swordspin -= 1;
@@ -398,13 +401,13 @@ void player_update(Entity* self)
 		self->bounds.d = 10;
 		self->bounds.h = 10;
 	}
-	if ((swordspin == 0) && (self->bounds.w == 5) && (class == 2))
+	if ((swordspin == 0) && (self->bounds.w == 5) && (self->class == 2))
 	{
 		self->bounds.w = 5;
 		self->bounds.d = 5;
 		self->bounds.h = 5;
 	}
-	if ((swordswing > 0) && (class == 2))
+	if ((swordswing > 0) && (self->class == 2))
 	{
 		if (swordside == false)
 		{
@@ -465,7 +468,7 @@ void player_update(Entity* self)
 	self->bounds.y = self->position.y - 2.5;
 	self->bounds.z = self->position.z - 2.5;
 
-	if ((swordspin > 0) && (class == 2))
+	if ((swordspin > 0) && (self->class == 2))
 	{
 		self->bounds.x = self->position.x - 5;
 		self->bounds.y = self->position.y - 5;
@@ -636,7 +639,6 @@ void player_collide(Entity* self, Entity* collide)
 	{
 		self->health -= 1;
 		//self->position.z += 5;
-		slog("hit by enemy explosion");
 	}
 	if (collide->obj == "shockwave")
 	{

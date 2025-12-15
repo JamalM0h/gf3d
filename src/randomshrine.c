@@ -9,6 +9,8 @@ void randomShrine_collide(Entity* self, Entity* collide);
 
 int randomitemid = 0;
 
+Mesh* randomShrinemesh = NULL;
+
 Entity* randomShrine_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D playpos)
 {
 	Entity* self;
@@ -17,7 +19,8 @@ Entity* randomShrine_spawn(GFC_Vector3D position, GFC_Color color, GFC_Vector3D 
 	if (!self)return;
 	gfc_line_cpy(self->name, "randomShrine");
 	self->obj = "randomShrine";
-	self->mesh = gf3d_mesh_load("models/randomshrine.obj");
+	if(randomShrinemesh == NULL)randomShrinemesh = gf3d_mesh_load("models/randomshrine.obj");  
+	self->mesh = randomShrinemesh; 
 	self->texture = gf3d_texture_load("models/primitives/flatgrey.png");
 	self->color = color;
 	self->position = position;

@@ -5,6 +5,8 @@
 void health_field_update(Entity* self);
 void health_field_free(Entity* self);
 
+Mesh* healthfieldmesh = NULL;
+
 Entity* health_field_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
@@ -12,7 +14,8 @@ Entity* health_field_spawn(GFC_Vector3D position, GFC_Color color)
 	if (!self)return;
 	gfc_line_cpy(self->name, "healthfield");
 	self->obj = "healthfield";
-	self->mesh = gf3d_mesh_load("models/primitives/sphere.obj");
+	if(healthfieldmesh == NULL)healthfieldmesh = gf3d_mesh_load("models/primitives/sphere.obj"); 
+	self->mesh = healthfieldmesh; 
 	self->texture = gf3d_texture_load("models/primitives/flatgreen.png");
 	self->color = color;
 	self->position = position;

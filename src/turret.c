@@ -8,6 +8,8 @@ void turret_update(Entity* self);
 void turret_free(Entity* self);
 void turret_collide(Entity* self, Entity* collide);
 
+Mesh* turretmesh = NULL; 
+
 Entity* turret_spawn(GFC_Vector3D position, GFC_Color color)
 {
 	Entity* self;
@@ -15,7 +17,8 @@ Entity* turret_spawn(GFC_Vector3D position, GFC_Color color)
 	if (!self)return;
 	gfc_line_cpy(self->name, "turret");
 	self->obj = "turret";
-	self->mesh = gf3d_mesh_load("models/turret.obj");
+	if(turretmesh == NULL)turretmesh = gf3d_mesh_load("models/turret.obj");   
+	self->mesh = turretmesh;  
 	self->texture = gf3d_texture_load("models/primitives/flatblue.png");
 	self->color = color;
 	self->position = position;

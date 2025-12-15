@@ -10,6 +10,8 @@ void flyer_collide(Entity* self, Entity* collide);
 
 Entity* flyerenemy; 
 
+Mesh* flyermesh = NULL; 
+
 Entity* flyer_spawn(GFC_Vector3D position, GFC_Color color, Entity *player)
 {
 	Entity* self;
@@ -17,7 +19,8 @@ Entity* flyer_spawn(GFC_Vector3D position, GFC_Color color, Entity *player)
 	if (!self)return;
 	gfc_line_cpy(self->name, "flyer");
 	self->obj = "monster";
-	self->mesh = gf3d_mesh_load("models/primitives/icylinder.obj");
+	if(flyermesh == NULL)flyermesh = gf3d_mesh_load("models/primitives/icylinder.obj"); 
+	self->mesh = flyermesh; 
 	self->texture = gf3d_texture_load("models/primitives/flatred.png");
 	self->color = color;
 	self->position = position;
@@ -135,6 +138,11 @@ void flyer_collide(Entity* self, Entity* collide)
 		self->position.x += (monstermovedir->x * 5.0f);
 		self->position.y += (monstermovedir->y * 5.0f);
 
+		self->health -= 1;
+	}
+
+	if (collide->obj == "explo")
+	{
 		self->health -= 1;
 	}
 }
