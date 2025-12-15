@@ -356,15 +356,19 @@ int main(int argc,char *argv[])
                 GFC_Vector3D randompos = gfc_vector3d(gfc_random_int(400) - 200, gfc_random_int(400) - 200, -1); 
                 teleporter->position = randompos;
                 teleporter->obj = "teleporter";
-                if (stage < 3)stage++;
+                if (stage < 2)stage+=1;
                 else stage = 0;
-                if (stage = 0) {
+                if (stage == 0) {
                     texture = gf3d_texture_load("models/alienCave.png"); 
                     worldobj->texture = gf3d_texture_load("models/black-stone.jpg"); 
                 }
-                if (stage = 1) {
+                else if (stage == 1) {
                     texture = gf3d_texture_load("models/spacesky.png");
                     worldobj->texture = gf3d_texture_load("models/green-grass.png");
+                }
+                else if (stage == 2) {
+                    texture = gf3d_texture_load("models/watersky.png");
+                    worldobj->texture = gf3d_texture_load("models/sandstone.jpg");
                 }
                 for (i = 0; i < 15; i++)
                 {
